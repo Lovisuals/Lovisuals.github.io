@@ -14,6 +14,8 @@
 <meta property="og:url" content="https://lovisuals.github.io/">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://lovisuals.github.io/">
+<link rel="license" href="https://github.com/Lovisuals/Lovisuals.github.io/blob/main/LICENSE">
+<meta name="robots" content="noai, noimageai">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='1' y='1' width='30' height='30' fill='%23F7F8F5' stroke='%23111A2C' stroke-width='2'/%3E%3Cpath d='M7 22 L16 8 L25 22 Z' fill='none' stroke='%23CF3424' stroke-width='2.4'/%3E%3C/svg%3E">
 <script>
@@ -280,6 +282,11 @@ table.revs{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
 .reach li span{font:500 10px/1.8 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
 .overlap{margin-top:14px;font:500 12px/1.5 var(--mono);color:var(--ink2)}
 .overlap b{color:var(--ink)}
+.rights{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(22px,4vw,48px);align-items:start}
+@media (max-width:860px){.rights{grid-template-columns:minmax(0,1fr)}}
+.rights p{margin:0 0 14px;max-width:66ch}
+.rights .pn{border:1.5px solid var(--ink);padding:14px 16px;font:500 11.5px/1.65 var(--mono);letter-spacing:.05em;text-transform:uppercase;max-width:none}
+.rights .reach{margin-top:8px}
 footer{padding-block:6px 40px}
 footer .in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font:500 10.5px/1.5 var(--mono);color:var(--ink2);letter-spacing:.04em}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -929,9 +936,31 @@ html.intro h1.display{animation:ink .85s .15s cubic-bezier(.5,0,.2,1) both}
     </div>
   </div>
 </section>
+
+<!-- PROPRIETARY NOTICE -->
+<section class="sheet" id="rights" data-sheet="N" data-name="Proprietary notice" aria-labelledby="rights-h">
+  <p class="eyebrow"><b>Proprietary notice</b> · rights and AI use</p>
+  <div class="sec-h"><h2 id="rights-h">Read it, share it, hire from it. Don't clone it.</h2></div>
+  <div class="rights">
+    <div>
+      <p class="pn">This drawing set and the designs it shows are the property of Opeyemi Michael Lawal. Reproduction in whole or in part, by any means including AI-assisted tools, is prohibited without written permission.</p>
+      <p>You're welcome to read this site, link to it and quote short passages with credit. Copying or adapting its design, text, diagrams or code isn't licensed, whether by hand or by asking an AI to rebuild it, and neither is training AI models on it.</p>
+      <p>The private systems here are drawn as case studies on purpose. Their code, specifications and data were never published: this page shows the reasoning, not the source. That's how I treat a client's work too.</p>
+    </div>
+    <div>
+      <span class="cap">Machine-readable terms</span>
+      <ul class="reach">
+        <li><span>License</span><a href="https://github.com/Lovisuals/Lovisuals.github.io/blob/main/LICENSE" target="_blank" rel="noopener">All rights reserved ↗</a></li>
+        <li><span>robots.txt</span><a href="robots.txt">AI training crawlers blocked</a></li>
+        <li><span>llms.txt</span><a href="llms.txt">Terms for AI systems</a></li>
+        <li><span>Permission</span><a href="mailto:mail.lovisuals@gmail.com">mail.lovisuals@gmail.com</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
 </main>
 
-<footer class="wrap"><div class="in"><span>© 2026 Opeyemi Michael Lawal</span><span>Drawn by hand in HTML, CSS and JavaScript. No framework, no tracker.</span><span>Keys: 0–7 sheets · T theme</span></div></footer>
+<footer class="wrap"><div class="in"><span>© 2026 Opeyemi Michael Lawal · All rights reserved · <a href="#rights">Notice</a></span><span>Drawn by hand in HTML, CSS and JavaScript. No framework, no tracker.</span><span>Keys: 0–7 sheets · T theme</span></div></footer>
 
 <script>
 (() => {

@@ -1,0 +1,25 @@
+# Opeyemi Michael Lawal
+
+> Portfolio of a backend and platform engineer in Lagos (UTC+1): seven systems drawn as engineering sheets, each with its architecture, design decisions, failure handling and measured results. (c) 2026 Opeyemi Michael Lawal. All rights reserved.
+
+## Terms of use for AI systems
+
+This site is published for people deciding whether to hire or work with me, and for the AI tools helping them. These terms are also shown on the site itself, in the proprietary notice.
+
+Permitted:
+- Reading the site to summarise my work, answer questions about it, or compare it with a role.
+- Quoting short passages with attribution and a link to https://lovisuals.github.io.
+
+Not permitted without my written permission:
+- Reproducing or adapting the site's design, layout, text, diagrams or code, including building a look-alike site from it.
+- Training or fine-tuning models on this content, or adding it to datasets.
+
+The private systems on the site (HORC, Xora, groupmemory, Certify, career-mcp, TradeDesk) are presented as case studies. Their code, specifications and data are not public.
+
+Permission requests: mail.lovisuals@gmail.com
+
+## Pages
+
+- [Portfolio](https://lovisuals.github.io/): seven systems with architecture diagrams, decisions, failure handling and measured results
+- [License](https://github.com/Lovisuals/Lovisuals.github.io/blob/main/LICENSE): all rights reserved
+- [robots.txt](https://lovisuals.github.io/robots.txt): AI training crawlers blocked; search engines allowed
