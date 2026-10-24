@@ -1,0 +1,1282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Opeyemi Michael Lawal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Backend and platform engineer in Lagos. Seven systems drawn as engineering sheets: architecture you can trace, failures you can inject, and the rules each system will never break.">
+<meta property="og:title" content="Opeyemi Michael Lawal · Systems that refuse to guess">
+<meta property="og:description" content="Seven systems drawn as engineering sheets. Trace a request. Inject a fault. See what each one will never do.">
+<meta property="og:image" content="https://lovisuals.github.io/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://lovisuals.github.io/">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://lovisuals.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='1' y='1' width='30' height='30' fill='%23F7F8F5' stroke='%23111A2C' stroke-width='2'/%3E%3Cpath d='M7 22 L16 8 L25 22 Z' fill='none' stroke='%23CF3424' stroke-width='2.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Martian+Mono:wdth,wght@75..112.5,400..600&display=swap">
+<style>
+/* Layout: a drawing set. Every section is a framed sheet with zone ticks and a title block; diagrams are sections you can trace and break. */
+:root{
+  --paper:#E6EAE7; --sheet:#F8F9F6; --ink:#111A2C; --ink2:#4B566B; --line:#1D3F94; --red:#C8301F; --live:#11804A;
+  --grid:rgba(29,63,148,.07); --hi:rgba(29,63,148,.09); --redhi:rgba(200,48,31,.08);
+  --display:"Archivo", "Arial Narrow", Arial, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:"Martian Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#091D35; --sheet:#0C2545; --ink:#E3EBF6; --ink2:#9CB0C9; --line:#8CC4FF; --red:#FF7B67; --live:#5BE08F;
+  --grid:rgba(140,196,255,.07); --hi:rgba(140,196,255,.12); --redhi:rgba(255,123,103,.12); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --paper:#091D35; --sheet:#0C2545; --ink:#E3EBF6; --ink2:#9CB0C9; --line:#8CC4FF; --red:#FF7B67; --live:#5BE08F;
+  --grid:rgba(140,196,255,.07); --hi:rgba(140,196,255,.12); --redhi:rgba(255,123,103,.12); color-scheme:dark }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;background-color:var(--paper);color:var(--ink);font:400 16.5px/1.62 var(--body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--line)}
+:focus-visible{outline:2px solid var(--line);outline-offset:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+img{max-width:100%;display:block}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mono,.cap{font-family:var(--mono)}
+.cap{font-size:10.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
+h1,h2,h3{text-wrap:balance;margin:0}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1.5px solid var(--ink)}
+.bar-in{display:flex;align-items:center;gap:18px;min-height:58px;max-width:1240px;margin:0 auto}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:500 11px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.mark svg{width:30px;height:30px;flex:none}
+.mark b{display:block;font-weight:600}
+.nav{display:flex;gap:16px;margin-left:auto;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.nav a{text-decoration:none;padding:6px 0}
+.clock{font:500 11px/1.2 var(--mono);letter-spacing:.04em;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock span{display:block;color:var(--ink2);font-size:9.5px;letter-spacing:.08em}
+.tog{border:1.5px solid var(--ink);background:transparent;padding:7px 10px;font:500 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.tog:hover{background:var(--hi)}
+.hire{background:var(--ink);color:var(--sheet);text-decoration:none;padding:9px 14px;font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--ink)}
+.hire:hover{background:var(--line);border-color:var(--line);color:var(--sheet)}
+@media (max-width:980px){.nav{display:none}.clock{margin-left:auto}}
+@media (max-width:560px){.clock span{display:none}.mark .who{display:none}.hire{padding:9px 10px}}
+
+/* sheets */
+main{padding-block:28px 8px}
+.sheet{position:relative;max-width:1240px;margin:0 auto 28px;background:var(--sheet);border:1.5px solid var(--ink);
+  padding:clamp(34px,5vw,64px) clamp(22px,5vw,64px) clamp(28px,4vw,48px)}
+.sheet::before{content:"";position:absolute;inset:14px;border:.75px solid var(--ink);opacity:.5;pointer-events:none}
+.zones{position:absolute;inset:0;pointer-events:none;font:500 8.5px/1 var(--mono);color:var(--ink2);opacity:.85}
+.zones .zx{position:absolute;top:0;left:14px;right:14px;height:14px;display:flex}
+.zones .zx span{flex:1;display:grid;place-items:center;border-left:.75px solid var(--ink)}
+.zones .zx span:first-child{border-left:0}
+.zones .zy{position:absolute;left:0;top:14px;bottom:14px;width:14px;display:flex;flex-direction:column}
+.zones .zy span{flex:1;display:grid;place-items:center;border-top:.75px solid var(--ink)}
+.zones .zy span:first-child{border-top:0}
+@media (max-width:720px){.zones{display:none}.sheet::before{inset:7px}}
+.eyebrow{font:500 10.5px/1.5 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);margin:0 0 18px}
+.eyebrow b{color:var(--ink);font-weight:600}
+
+/* cover */
+.cover-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:start}
+@media (max-width:960px){.cover-grid{grid-template-columns:minmax(0,1fr)}}
+.h1wrap{position:relative}
+h1.display{font-family:var(--display);font-variation-settings:"wdth" 116;font-weight:800;font-size:clamp(2.3rem,6.3vw,5.6rem);line-height:1.02;letter-spacing:-.025em;margin:0 0 34px}
+@media (max-width:560px){h1.display{font-variation-settings:"wdth" 96}}
+h1 .rev{white-space:normal}
+.cloud{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.cloud path{fill:none;stroke:var(--red);stroke-width:2;stroke-linejoin:round}
+.cloud .tag path{fill:var(--sheet);stroke-width:1.6}
+.cloud text{fill:var(--red);font:700 11px var(--mono);text-anchor:middle}
+.lede{font-size:clamp(1.06rem,1.5vw,1.22rem);line-height:1.55;max-width:58ch;margin:0 0 26px}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--ink);background:transparent;padding:11px 15px;font:500 12px/1 var(--mono);letter-spacing:.03em;text-decoration:none;color:var(--ink)}
+.btn:hover{background:var(--hi);color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--sheet)}
+.btn.primary:hover{background:var(--line);border-color:var(--line);color:var(--sheet)}
+.btn .k{font-size:10px;color:var(--ink2)}
+.livebar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 11px/1.4 var(--mono);color:var(--ink2);border-top:.75px solid var(--ink);padding-top:14px}
+.livebar a{color:var(--ink)}
+
+/* fault bench */
+.bench{border:1.5px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;min-width:0}
+.bench-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 14px;border-bottom:1.5px solid var(--ink)}
+.bench-h h2{font:700 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.bench p.sub{margin:0;padding:10px 14px 4px;font-size:14px;color:var(--ink2)}
+.flist{list-style:none;margin:0;padding:8px 10px 10px;display:grid;gap:6px}
+.fbtn{width:100%;display:grid;grid-template-columns:6.4rem minmax(0,1fr);gap:10px;align-items:baseline;text-align:left;background:var(--sheet);border:1px solid var(--ink);padding:9px 11px;font-size:14.5px;line-height:1.35}
+.fbtn:hover{border-color:var(--red);background:var(--redhi)}
+.fbtn[aria-pressed="true"]{border-color:var(--red);box-shadow:inset 3px 0 0 var(--red)}
+.fbtn .sys{font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.console{margin:0;border-top:1.5px solid var(--ink);padding:14px;min-height:196px;font:400 12px/1.65 var(--mono);background:var(--sheet);overflow-wrap:anywhere}
+.console div{white-space:pre-wrap}
+.console .c{color:var(--ink2)}
+.console .ok{color:var(--live);font-weight:600}
+.console .ok i{font-style:normal;color:var(--ink);font-weight:400}
+.console .src{color:var(--ink2)}
+.console a{color:var(--line)}
+
+/* title block */
+.tblock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--ink);border:1.5px solid var(--ink);margin:40px 0 0 auto;max-width:700px}
+.tblock>div{background:var(--sheet);padding:7px 9px;min-width:0}
+.tblock b{display:block;font:500 8.5px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
+.tblock span{display:block;font:500 11.5px/1.35 var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tblock .wide{grid-column:span 2}
+@media (max-width:620px){.tblock{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* index */
+.sec-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px 24px;margin-bottom:24px}
+.sec-h h2{font-family:var(--display);font-variation-settings:"wdth" 112;font-weight:780;font-size:clamp(1.8rem,3.6vw,2.9rem);line-height:1;letter-spacing:-.02em}
+.sec-h p{margin:0;max-width:52ch;color:var(--ink2)}
+.tbl-wrap{overflow-x:auto;border:1.5px solid var(--ink)}
+table.reg{border-collapse:collapse;width:100%;min-width:760px;font-size:15px}
+.reg th{font:500 9.5px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--ink);background:var(--paper)}
+.reg td{padding:13px 12px;border-bottom:.75px solid var(--ink);vertical-align:top}
+.reg tr:last-child td{border-bottom:0}
+.reg td:first-child{font:600 12px/1.6 var(--mono);white-space:nowrap}
+.reg td a.t{font-weight:600;text-decoration:none;font-size:16px}
+.reg td a.t:hover{text-decoration:underline}
+.reg .stk{font:400 11px/1.6 var(--mono);color:var(--ink2)}
+.reg tbody tr:hover{background:var(--hi)}
+.pill{display:inline-flex;align-items:center;gap:7px;font:600 10px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;padding:6px 8px;border:1px solid currentColor;white-space:nowrap}
+.pill.live{color:var(--live)}
+.pill.live::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2.2s ease-out infinite}
+.pill.demo{color:var(--line)}
+.pill.priv{color:var(--ink2)}
+.pill .ms{font-weight:500;letter-spacing:.02em}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.notes{margin-top:34px;display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:24px}
+@media (max-width:760px){.notes{grid-template-columns:minmax(0,1fr)}}
+.notes h3{font:700 13px/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase}
+.notes h3+p{margin:8px 0 0;font-size:14px;color:var(--ink2)}
+.notes ol{margin:0;padding:0;list-style:none;counter-reset:n;columns:2 320px;column-gap:36px}
+.notes li{counter-increment:n;break-inside:avoid;display:grid;grid-template-columns:2.2em minmax(0,1fr);padding:0 0 12px;font-size:15px;line-height:1.45}
+.notes li::before{content:counter(n) ".";font:600 12px/1.7 var(--mono);color:var(--red)}
+.notes li a{font:500 10px/1 var(--mono);letter-spacing:.06em;color:var(--ink2);white-space:nowrap}
+
+/* project sheets */
+.p-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px 28px;align-items:start;margin-bottom:30px}
+@media (max-width:820px){.p-head{grid-template-columns:minmax(0,1fr)}}
+.sno{font-family:var(--display);font-variation-settings:"wdth" 125;font-weight:800;font-size:clamp(2.8rem,6vw,4.8rem);line-height:.85;color:transparent;-webkit-text-stroke:1.5px var(--line);letter-spacing:-.01em}
+.p-head h2{font-family:var(--display);font-variation-settings:"wdth" 110;font-weight:780;font-size:clamp(1.9rem,3.8vw,3.1rem);line-height:1;letter-spacing:-.02em;margin-bottom:10px}
+.p-head .one{margin:0;font-size:clamp(1.02rem,1.4vw,1.15rem);max-width:60ch}
+.links{display:flex;flex-direction:column;gap:8px;align-items:flex-start;font:500 12px/1.4 var(--mono)}
+@media (max-width:820px){.links{flex-direction:row;flex-wrap:wrap;align-items:center}}
+.links .muted{color:var(--ink2)}
+.p-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:clamp(24px,4vw,48px);margin-bottom:34px}
+.p-body.solo{grid-template-columns:minmax(0,1fr)}
+.p-body.solo .prose{columns:2 360px;column-gap:44px}
+.p-body.solo .prose>div{break-inside:avoid}
+@media (max-width:900px){.p-body{grid-template-columns:minmax(0,1fr)}}
+.prose h3,.triad h3{font:700 11px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;margin:0 0 8px}
+.prose p{margin:0 0 20px;max-width:64ch}
+.plate{margin:0;border:1.5px solid var(--ink);background:var(--paper);align-self:start}
+.plate img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top;border-bottom:1.5px solid var(--ink)}
+.plate figcaption{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;font:500 9.5px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+
+/* drawings */
+.drawing{border:1.5px solid var(--ink);margin-bottom:34px;background:var(--sheet)}
+.dg-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;padding:10px 14px;border-bottom:1.5px solid var(--ink);background:var(--paper)}
+.dg-head .cap b{color:var(--ink)}
+.play{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);color:var(--line);background:transparent;padding:8px 12px;font:600 11px/1 var(--mono);letter-spacing:.04em}
+.play:hover{background:var(--hi)}
+.dg-scroll{overflow-x:auto;padding:18px 14px 10px}
+.dg{display:block;width:100%;min-width:700px;height:auto}
+.dg line{stroke:var(--line);stroke-width:1.3;opacity:.55;transition:opacity .2s,stroke-width .2s}
+.dg line.lit{opacity:1;stroke-width:2.4}
+.dg .port{fill:var(--line);opacity:.7}
+.dg .node rect{fill:var(--sheet);stroke:var(--ink);stroke-width:1.3;transition:fill .2s,stroke .2s}
+.dg .nt{font:600 13px var(--body);fill:var(--ink);text-anchor:middle}
+.dg .ns{font:400 9.5px var(--mono);fill:var(--ink2);text-anchor:middle}
+.dg .node.on rect{fill:var(--hi);stroke:var(--line);stroke-width:2.6}
+.dg .node.hit rect{fill:var(--redhi);stroke:var(--red);stroke-width:2.2;stroke-dasharray:6 4}
+.dg .xmark{stroke:var(--red);stroke-width:2.4;opacity:0;fill:none}
+.dg .node.hit .xmark{opacity:1}
+.dg .pk{fill:var(--line)}
+.dg-foot{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);border-top:1.5px solid var(--ink)}
+@media (max-width:900px){.dg-foot{grid-template-columns:minmax(0,1fr)}}
+.steps{list-style:none;margin:0;padding:12px 14px 14px;counter-reset:s;display:grid;gap:2px}
+.steps li{counter-increment:s}
+.steps button{width:100%;display:grid;grid-template-columns:2.1em minmax(0,1fr);gap:6px;text-align:left;background:transparent;border:0;border-left:2px solid transparent;padding:6px 8px;font-size:14.2px;line-height:1.45;color:var(--ink2)}
+.steps button::before{content:counter(s,decimal-leading-zero);font:600 10.5px/1.9 var(--mono);color:var(--ink2)}
+.steps button:hover{color:var(--ink);background:var(--hi)}
+.steps li.cur button{color:var(--ink);border-left-color:var(--line);background:var(--hi)}
+.steps li.cur button::before{color:var(--line)}
+.fpanel{border-left:1.5px solid var(--ink);padding:12px 14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+@media (max-width:900px){.fpanel{border-left:0;border-top:1.5px solid var(--ink)}}
+.chip{text-align:left;border:1px solid var(--ink);background:var(--sheet);padding:8px 10px;font-size:14px;line-height:1.35}
+.chip::before{content:"⚡ ";color:var(--red)}
+.chip:hover{border-color:var(--red);background:var(--redhi)}
+.chip[aria-pressed="true"]{border-color:var(--red);box-shadow:inset 3px 0 0 var(--red)}
+.verdict{margin-top:4px;border:1px dashed var(--red);padding:10px 11px;font-size:14.5px;line-height:1.5;background:var(--redhi)}
+.verdict .cap{color:var(--red);display:block;margin-bottom:4px}
+.verdict .src{display:block;margin-top:6px;font:400 10.5px/1.4 var(--mono);color:var(--ink2)}
+
+/* triad */
+.triad{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:clamp(22px,3.4vw,40px)}
+@media (max-width:980px){.triad{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.triad>:first-child{grid-column:1/-1}}
+@media (max-width:640px){.triad{grid-template-columns:minmax(0,1fr)}}
+.triad ul,.triad ol{margin:0;padding:0;list-style:none;display:grid;gap:12px;font-size:15px;line-height:1.5}
+.dec li b{font-weight:600}
+.dec li{padding-left:14px;border-left:1.5px solid var(--line)}
+.never h3{color:var(--red)}
+.never li{display:grid;grid-template-columns:1.3em minmax(0,1fr)}
+.never li::before{content:"✕";color:var(--red);font-weight:700}
+.meas li{border-top:.75px solid var(--ink);padding-top:9px}
+.meas li:first-child{border-top:0;padding-top:0}
+.meas strong{display:block;font-family:var(--display);font-variation-settings:"wdth" 108;font-weight:750;font-size:1.32rem;line-height:1.15;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.meas span{display:block;font-size:14px;color:var(--ink2)}
+.meas cite{display:block;font:normal 400 10px/1.5 var(--mono);color:var(--ink2);margin-top:2px}
+
+/* details, method, revisions, contact */
+.details{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:1px;background:var(--ink);border:1.5px solid var(--ink)}
+.details article{background:var(--sheet);padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px;min-width:0;overflow-wrap:anywhere}
+.details a{font:500 12px/1.5 var(--mono)}
+.details .dn{display:flex;justify-content:space-between;gap:10px;font:600 11px/1.4 var(--mono)}
+.details h3{font-size:18px;font-weight:600;font-family:var(--body)}
+.details p{margin:0;font-size:15px;line-height:1.5}
+.details .stk{font:400 10.5px/1.5 var(--mono);color:var(--ink2);margin-top:auto}
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--ink);border:1.5px solid var(--ink)}
+@media (max-width:760px){.rules{grid-template-columns:minmax(0,1fr)}}
+.rules>div{background:var(--sheet);padding:20px;min-width:0}
+.rules h3{font-family:var(--display);font-variation-settings:"wdth" 105;font-weight:700;font-size:1.25rem;line-height:1.2;margin:6px 0 8px}
+.rules p{margin:0 0 10px;font-size:15.5px}
+.rules code{font:400 11.5px/1.5 var(--mono);color:var(--line);background:var(--hi);padding:2px 5px;overflow-wrap:anywhere}
+.method-lede{font-size:clamp(1.05rem,1.4vw,1.18rem);max-width:66ch;margin:0 0 24px}
+table.revs{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+.revs th{font:500 9.5px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);text-align:left;padding:9px 12px;border-bottom:1.5px solid var(--ink);background:var(--paper)}
+.revs td{padding:12px;border-bottom:.75px solid var(--ink);vertical-align:top}
+.revs tr:last-child td{border-bottom:0}
+.revs td:first-child{width:3.2em}
+.revs td:first-child span{display:inline-grid;place-items:center;width:26px;height:24px;font:700 11px/1 var(--mono);color:var(--red);clip-path:polygon(50% 0,100% 100%,0 100%);background:var(--red);position:relative}
+.revs td:first-child span i{font-style:normal;color:var(--sheet);transform:translateY(3px)}
+.revs td:nth-child(2){font:500 12px/1.6 var(--mono);white-space:nowrap;width:7.5em}
+.revs tr.now td{background:var(--hi)}
+.edu{margin:18px 0 0;font-size:15px;color:var(--ink2)}
+.hire-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center}
+@media (max-width:880px){.hire-grid{grid-template-columns:minmax(0,1fr)}}
+.stamp{display:inline-block;border:3px double var(--red);color:var(--red);padding:8px 16px;font:800 clamp(1.1rem,2.4vw,1.6rem)/1 var(--display);font-variation-settings:"wdth" 125;letter-spacing:.06em;transform:rotate(-4deg);margin:0 0 22px}
+.hire-grid h2{font-family:var(--display);font-variation-settings:"wdth" 112;font-weight:800;font-size:clamp(2rem,4.6vw,3.6rem);line-height:1;letter-spacing:-.02em;margin-bottom:16px}
+.hire-grid p{margin:0 0 14px;max-width:56ch}
+.mail{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1.5px solid var(--ink);padding:14px;background:var(--paper)}
+.mail .addr{font:600 clamp(.95rem,2vw,1.15rem)/1.3 var(--mono);overflow-wrap:anywhere;user-select:all;flex:1 1 220px}
+.reach{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:1px;background:var(--ink);border:1.5px solid var(--ink)}
+.reach li{background:var(--sheet);display:flex;justify-content:space-between;gap:14px;padding:11px 14px;font-size:15px}
+.reach li span{font:500 10px/1.8 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.overlap{margin-top:14px;font:500 12px/1.5 var(--mono);color:var(--ink2)}
+.overlap b{color:var(--ink)}
+footer{padding-block:6px 40px}
+footer .in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font:500 10.5px/1.5 var(--mono);color:var(--ink2);letter-spacing:.04em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pill.live::before{animation:none}*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in wrap">
+    <a class="mark" href="#cover" aria-label="Opeyemi Michael Lawal, back to the cover sheet">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 22 L16 8 L25 22 Z" fill="none" stroke="var(--red)" stroke-width="2"/><text x="16" y="20.5" font-size="7" font-family="Martian Mono, monospace" font-weight="700" text-anchor="middle" fill="currentColor">G</text></svg>
+      <span class="who"><b>O. M. Lawal</b>Systems, drawn</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#index">Index</a><a href="#notebook">Sheets</a><a href="#method">Method</a><a href="#revisions">Revisions</a><a href="#hire">Contact</a>
+    </nav>
+    <div class="clock" aria-live="off"><span>Lagos · WAT</span><time id="lagos">--:--:--</time></div>
+    <button class="tog" id="theme" type="button" aria-label="Switch colour theme">Blueprint</button>
+    <a class="hire" href="#hire">Hire me</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- SHEET 00 · COVER -->
+<section class="sheet" id="cover" data-sheet="00" aria-labelledby="cover-h">
+  <p class="eyebrow"><b>Sheet 00</b> · Cover · Drawing set OML-2026 · Rev G</p>
+  <div class="h1wrap">
+    <h1 class="display" id="cover-h">I build systems that<br> <span class="rev" id="rev">refuse to guess.</span></h1>
+  </div>
+  <div class="cover-grid">
+    <div>
+      <p class="lede">I'm Opeyemi Michael Lawal, a backend and platform engineer in Lagos. I design and ship software for money, medicine and markets, where a confident wrong answer costs more than a slow right one. Each system in this set comes with a written list of what it will never do. The fault bench lets you test that.</p>
+      <div class="ctas">
+        <a class="btn primary" href="#index">Open the drawings ↓</a>
+        <button class="btn" type="button" data-copy="mail.lovisuals@gmail.com">mail.lovisuals@gmail.com <span class="k">copy</span></button>
+        <a class="btn" href="https://drive.google.com/file/d/1l7C6FJSdVL9RhxtWOfAuPRMVadETXaLV/view" target="_blank" rel="noopener">CV ↗</a>
+        <a class="btn" href="https://github.com/Lovisuals" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="btn" href="https://www.linkedin.com/in/opeyemi-lawal-b72a67249" target="_blank" rel="noopener">LinkedIn ↗</a>
+      </div>
+      <div class="livebar">
+        <span class="cap">Live now</span>
+        <a href="https://denotebook.app" target="_blank" rel="noopener">denotebook.app</a>
+        <a href="https://shelflink.com.ng" target="_blank" rel="noopener">shelflink.com.ng</a>
+        <a href="https://medlocumjobs.com/courses" target="_blank" rel="noopener">medlocumjobs.com/courses</a>
+        <a href="https://xora-6jz.pages.dev" target="_blank" rel="noopener">Xora demo</a>
+      </div>
+    </div>
+
+    <aside class="bench" aria-labelledby="bench-h">
+      <div class="bench-h"><h2 id="bench-h">Fault bench</h2><span class="cap">Try to make it guess</span></div>
+      <p class="sub">Pick a failure. The answer is how each system is actually built, with its source.</p>
+      <ul class="flist" id="flist"></ul>
+      <output class="console" id="console" aria-live="polite"></output>
+    </aside>
+  </div>
+
+  <div class="tblock" aria-label="Title block">
+    <div class="wide"><b>Project</b><span>Selected systems, 2024–2026</span></div>
+    <div><b>Sheet</b><span>00 of 07</span></div>
+    <div><b>Rev</b><span>G · 24 Oct 2026</span></div>
+    <div><b>Drawn</b><span>O. M. Lawal</span></div>
+    <div><b>Based</b><span>Lagos · UTC+1</span></div>
+    <div class="wide"><b>Your time</b><span id="yourtime">--:--</span></div>
+  </div>
+</section>
+
+<!-- INDEX -->
+<section class="sheet" id="index" data-sheet="IX" aria-labelledby="index-h">
+  <p class="eyebrow"><b>Drawing index</b> · 7 sheets · 4 live, 3 private</p>
+  <div class="sec-h">
+    <h2 id="index-h">Seven systems, one rule</h2>
+    <p>Live products link straight to production. Private and internal work is drawn as a case study: the architecture and the reasoning, without the code.</p>
+  </div>
+  <div class="tbl-wrap">
+    <table class="reg">
+      <thead><tr><th scope="col">Sheet</th><th scope="col">System</th><th scope="col">What it is</th><th scope="col">Status</th><th scope="col">Built with</th></tr></thead>
+      <tbody>
+        <tr><td>A-01</td><td><a class="t" href="#notebook">The Notebook</a></td><td>Trading journal that rebuilds every trade from broker records</td><td><span class="pill live" title="Verified live on 24 Oct 2026">Live<span class="ms"></span></span></td><td class="stk">TypeScript · Next.js · Postgres</td></tr>
+        <tr><td>A-02</td><td><a class="t" href="#shelflink">ShelfLink</a></td><td>Telegram photos in, a shop link and WhatsApp orders out</td><td><span class="pill live" data-ping="https://shelflink.com.ng">Live<span class="ms"></span></span></td><td class="stk">Cloudflare Workers · Supabase</td></tr>
+        <tr><td>A-03</td><td><a class="t" href="#academy">MedLocum Academy</a></td><td>E-learning for clinicians: courses, tests, CPD, certificates</td><td><span class="pill live" data-ping="https://medlocumjobs.com/courses">Live<span class="ms"></span></span></td><td class="stk">Laravel 12 · Filament · Livewire</td></tr>
+        <tr><td>A-04</td><td><a class="t" href="#xora">Xora</a></td><td>AI bookkeeper that asks instead of guessing</td><td><span class="pill demo">Live demo</span></td><td class="stk">FastAPI · SQLAlchemy · React</td></tr>
+        <tr><td>A-05</td><td><a class="t" href="#horc">HORC Research Engine</a></td><td>Quant lab with a Python oracle and a byte-identical Rust replay</td><td><span class="pill priv">Case study</span></td><td class="stk">Python · Rust · Pine</td></tr>
+        <tr><td>A-06</td><td><a class="t" href="#certify">Certify</a></td><td>Cohort certificates with approval, QR checks and dispatch</td><td><span class="pill priv">Internal · in use</span></td><td class="stk">Laravel 12 · Livewire · Mailgun</td></tr>
+        <tr><td>A-07</td><td><a class="t" href="#groupmemory">groupmemory</a></td><td>A Telegram community's memory, readable by any AI over MCP</td><td><span class="pill priv">Case study</span></td><td class="stk">Python · SQLite · MCP</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="notes">
+    <div><h3>General notes</h3><p>Rules that hold across the set. Every one is enforced in code, tests or the database, and each points to the sheet that shows how.</p></div>
+    <ol>
+      <li><span>The browser never touches the database. It talks only to our server. <a href="#notebook">A-01</a></span></li>
+      <li><span>A broker password is used once and never stored. <a href="#notebook">A-01</a></span></li>
+      <li><span>Money is a decimal, never a floating-point number. <a href="#notebook">A-01</a></span></li>
+      <li><span>Participation counts toward a grade only when it was measured. <a href="#academy">A-03</a></span></li>
+      <li><span>Nothing posts to the books that the owner hasn't confirmed. <a href="#xora">A-04</a></span></li>
+      <li><span>If two events land on the same bar, their order is unknown and the event stops. <a href="#horc">A-05</a></span></li>
+      <li><span>The fast engine never defines a rule. Python is the authority. <a href="#horc">A-05</a></span></li>
+      <li><span>Certificate delivery never waits on a worker that might be dead. <a href="#certify">A-06</a></span></li>
+      <li><span>Every answer cites the message it came from. <a href="#groupmemory">A-07</a></span></li>
+      <li><span>Never edit a test to make it pass. <a href="#method">Method</a></span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- A-01 THE NOTEBOOK -->
+<article class="sheet" id="notebook" data-sheet="A-01" aria-labelledby="notebook-h">
+  <header class="p-head">
+    <div class="sno" aria-hidden="true">A-01</div>
+    <div>
+      <h2 id="notebook-h">The Notebook</h2>
+      <p class="one">A trading journal for MT5 traders: review fast, change one thing, see if it held. Every number on screen can be traced back to a broker record.</p>
+    </div>
+    <div class="links">
+      <span class="pill live" title="Verified live on 24 Oct 2026">Live<span class="ms"></span></span>
+      <a href="https://denotebook.app" target="_blank" rel="noopener">denotebook.app ↗</a>
+      <span class="muted">Code: private repo</span>
+    </div>
+  </header>
+  <div class="p-body">
+    <div class="prose">
+      <h3>The problem</h3>
+      <p>Most trading journals run on hand-typed numbers and screenshots, so their statistics can't be checked. A trader asking "did my change work?" gets an answer nobody can defend.</p>
+      <h3>What I built</h3>
+      <p>One language, one repository, two processes. A Next.js web app and a Node worker share 18 packages and meet only in PostgreSQL, which also holds the job queue. Connected accounts are rebuilt from the broker's own deal records and reconciled against the balance. Patterns come from fixed rules, not a model.</p>
+      <p>A 15-chapter specification is the source of truth. Database migrations are generated from its SQL, and 31 architecture decision records explain every trade-off, including the features I said no to.</p>
+    </div>
+    <figure class="plate">
+      <img src="assets/plates/notebook.jpg" width="1440" height="900" alt="The Notebook home page: the headline 'Your history, interrogated.' beside a Today panel with 46 imported, 43 reviewed and 3 trades that need review." loading="lazy">
+      <figcaption><span>Plate 1 · denotebook.app</span><span>Captured 24 Oct 2026</span></figcaption>
+    </figure>
+  </div>
+  <div class="drawing" data-sys="notebook"></div>
+  <div class="triad">
+    <section><h3>Decisions</h3><ol class="dec">
+      <li><b>Modular monolith, two processes.</b> No microservices, no Redis, no Kubernetes. One engineer has to be able to own all of it. <span class="cap">ADR-002</span></li>
+      <li><b>PostgreSQL is the job queue.</b> A job commits in the same transaction as the data it's about, so there's no second system to fall out of sync. <span class="cap">ADR-005 · 011</span></li>
+      <li><b>Full rebuild on every sync, diff writes.</b> Boring and idempotent. Incremental patching waits for a measured trigger: 50M rows or rebuilds over 60 s at p95. <span class="cap">ADR-016</span></li>
+      <li><b>Rejected: trades read from screenshots.</b> Numbers we can't reconcile become statistics we can't defend. <span class="cap">ADR-025</span></li>
+    </ol></section>
+    <section class="never"><h3>Never</h3><ul>
+      <li>The browser never touches the database or the broker connection.</li>
+      <li>A broker password is never kept beyond its single use.</li>
+      <li>Money, prices and R are decimals, never floats. Business logic never reads the clock directly.</li>
+      <li>Tenant isolation is never left to one layer: app checks and Postgres row-level security both apply.</li>
+    </ul></section>
+    <section><h3>Measured</h3><ul class="meas">
+      <li><strong>41.6 s</strong><span>to rebuild 100,000 trades from scratch; 14.4 s when nothing changed</span><cite>spec §14.2 · measured 7 Oct 2026</cite></li>
+      <li><strong>31 ADRs · 91 test files</strong><span>across 18 packages, a 15-chapter spec and a Truth Set of expected results</span></li>
+      <li><strong>One gate for everyone</strong><span>every pull request, mine or an agent's, passes the same CI checks before it merges</span></li>
+    </ul></section>
+  </div>
+  <div class="tblock" aria-label="Title block">
+    <div><b>Sheet</b><span>A-01 of A-07</span></div>
+    <div><b>Role</b><span>Founder, sole engineer</span></div>
+    <div><b>Period</b><span>Oct 2026 – now</span></div>
+    <div><b>Status</b><span>Live, in beta</span></div>
+    <div class="wide" style="grid-column:1/-1"><b>Stack</b><span>TypeScript · Next.js · PostgreSQL (Supabase) · graphile-worker · Railway · Cloudflare · Sentry</span></div>
+  </div>
+</article>
+
+<!-- A-02 SHELFLINK -->
+<article class="sheet" id="shelflink" data-sheet="A-02" aria-labelledby="shelflink-h">
+  <header class="p-head">
+    <div class="sno" aria-hidden="true">A-02</div>
+    <div>
+      <h2 id="shelflink-h">ShelfLink</h2>
+      <p class="one">Snap a picture, get a shop link, take orders on WhatsApp. Built for sellers in Lagos, Accra and Nairobi, in English and Pidgin.</p>
+    </div>
+    <div class="links">
+      <span class="pill live" data-ping="https://shelflink.com.ng">Live<span class="ms"></span></span>
+      <a href="https://shelflink.com.ng" target="_blank" rel="noopener">shelflink.com.ng ↗</a>
+      <span class="muted">Code: private repo</span>
+    </div>
+  </header>
+  <div class="p-body">
+    <div class="prose">
+      <h3>The problem</h3>
+      <p>Small sellers in West Africa sell through WhatsApp status and send each customer thirty photos, one at a time. They don't want an app, a dashboard or a monthly fee.</p>
+      <h3>What I built</h3>
+      <p>A Telegram bot is the entire seller interface: send a photo with the price under it and it becomes an item on a public shelf. One Cloudflare Worker runs the webhook, the price parser, the English and Pidgin copy, the media proxy and the morning digest. Buyers fill a bag and send the seller one WhatsApp message with the items, links and subtotal.</p>
+    </div>
+    <figure class="plate">
+      <img src="assets/plates/shelflink.jpg" width="1440" height="900" alt="ShelfLink home page in Pidgin: 'Post am like Status. Sell am like big shop.' above a row of real seller shops." loading="lazy">
+      <figcaption><span>Plate 2 · shelflink.com.ng</span><span>Captured 24 Oct 2026</span></figcaption>
+    </figure>
+  </div>
+  <div class="drawing" data-sys="shelflink"></div>
+  <div class="triad">
+    <section><h3>Decisions</h3><ol class="dec">
+      <li><b>Telegram as the CMS and media store.</b> Sellers already live there, and storage costs nothing.</li>
+      <li><b>One Worker is the whole backend.</b> Webhook, parser, copy, media proxy and cron ship as one deploy, with no server to patch.</li>
+      <li><b>No buyer accounts.</b> Checkout is a WhatsApp message, because that's where the sale closes anyway.</li>
+      <li><b>Pidgin is a first-class language.</b> Onboarding copy was written in it, not translated into it afterwards.</li>
+    </ol></section>
+    <section class="never"><h3>Never</h3><ul>
+      <li>A buyer never needs an app or an account to order.</li>
+      <li>A seller never needs a channel or a dashboard to open a shop.</li>
+      <li>A seller never retypes a catalogue: every later photo is a new item with Sold, Price, Hide and Delete buttons.</li>
+    </ul></section>
+    <section><h3>Measured</h3><ul class="meas">
+      <li><strong>25+ live shops</strong><span>the largest lists 131 items</span><cite>shelflink.com.ng · 24 Oct 2026</cite></li>
+      <li><strong>15 of 15</strong><span>checks passed by the scripted evaluator at the production cutover to shelflink.com.ng</span></li>
+      <li><strong>3 Workers, 1 database</strong><span>site, API and www redirect. No servers to patch.</span></li>
+    </ul></section>
+  </div>
+  <div class="tblock" aria-label="Title block">
+    <div><b>Sheet</b><span>A-02 of A-07</span></div>
+    <div><b>Role</b><span>Founder, sole engineer</span></div>
+    <div><b>Period</b><span>2026 – now</span></div>
+    <div><b>Status</b><span>Live</span></div>
+    <div class="wide" style="grid-column:1/-1"><b>Stack</b><span>Cloudflare Workers · Supabase (Postgres, RLS) · React · Vite · Telegram Bot API · R2</span></div>
+  </div>
+</article>
+
+<!-- A-03 MEDLOCUM ACADEMY -->
+<article class="sheet" id="academy" data-sheet="A-03" aria-labelledby="academy-h">
+  <header class="p-head">
+    <div class="sno" aria-hidden="true">A-03</div>
+    <div>
+      <h2 id="academy-h">MedLocum Academy</h2>
+      <p class="one">The e-learning centre inside Medical Locum Jobs: self-paced courses, tests that count, CPD records and verifiable certificates for clinicians.</p>
+    </div>
+    <div class="links">
+      <span class="pill live" data-ping="https://medlocumjobs.com/courses">Live<span class="ms"></span></span>
+      <a href="https://medlocumjobs.com/courses" target="_blank" rel="noopener">medlocumjobs.com/courses ↗</a>
+      <span class="muted">Code: employer's repo</span>
+    </div>
+  </header>
+  <div class="p-body">
+    <div class="prose">
+      <h3>The problem</h3>
+      <p>I ran these courses by hand first. Lectures lived in Telegram groups, tests were duplicated for every cohort, results were merged in spreadsheets and certificates went out one by one. Every step leaked: duplicate people, unclear retakes, participation marks that were guessed.</p>
+      <h3>What I built</h3>
+      <p>Self-paced courses with configurable grading (weighted tests, best attempt, a pass mark per course), partner referral links with a commission ledger, Paystack checkout for fees and transcripts, and certificates learners name once and can download again. A lecturer's Telegram course became 55 lessons through a transcription pipeline and a writer and clinical-editor review.</p>
+    </div>
+    <figure class="plate">
+      <img src="assets/plates/academy.jpg" width="1440" height="900" alt="MedLocum Academy courses page: 'Learn, get certified, advance your practice.' with course search and CPD provider details." loading="lazy">
+      <figcaption><span>Plate 3 · medlocumjobs.com/courses</span><span>Captured 24 Oct 2026</span></figcaption>
+    </figure>
+  </div>
+  <div class="drawing" data-sys="academy"></div>
+  <div class="triad">
+    <section><h3>Decisions</h3><ol class="dec">
+      <li><b>Unknown values read as "unknown".</b> One drifted enum value in production was crashing whole admin pages. A safe cast ended that class of 500s instead of patching them one by one.</li>
+      <li><b>The manual rule is one option, not the rule.</b> Grading is configurable per course, so the old spreadsheet formula survives only where it's still wanted.</li>
+      <li><b>Courses ship as data.</b> Each course is a seeder plus files in a private bucket, so it can be reviewed in a pull request and rebuilt.</li>
+      <li><b>Audit before launch.</b> I proved each launch blocker with a test that reproduces it, so every fix can be shown to work.</li>
+    </ol></section>
+    <section class="never"><h3>Never</h3><ul>
+      <li>Participation never counts toward a grade unless it was measured.</li>
+      <li>Learners' own messages were never part of the course migration, and the lecturer's written rights came first.</li>
+      <li>A certificate name is never edited in place: a correction rebuilds the PDF and sends it again.</li>
+    </ul></section>
+    <section><h3>Measured</h3><ul class="meas">
+      <li><strong>55 lessons, 39 with video</strong><span>moved from a Telegram group into one self-paced course</span></li>
+      <li><strong>8 launch blockers</strong><span>found in a pre-launch audit, each proven with a failing test</span></li>
+      <li><strong>2–3 days → minutes</strong><span>for monthly result collation, with errors cut from 5–10% to zero</span><cite>Results Compiler · D-01</cite></li>
+    </ul></section>
+  </div>
+  <div class="tblock" aria-label="Title block">
+    <div><b>Sheet</b><span>A-03 of A-07</span></div>
+    <div><b>Role</b><span>Course coordinator → platform engineer</span></div>
+    <div><b>Period</b><span>Sep 2024 – now</span></div>
+    <div><b>Status</b><span>Live, public</span></div>
+    <div class="wide" style="grid-column:1/-1"><b>Stack</b><span>Laravel 12 · Filament · Livewire · MySQL · Laravel Cloud · Paystack · Groq whisper-large-v3</span></div>
+  </div>
+</article>
+
+<!-- A-04 XORA -->
+<article class="sheet" id="xora" data-sheet="A-04" aria-labelledby="xora-h">
+  <header class="p-head">
+    <div class="sno" aria-hidden="true">A-04</div>
+    <div>
+      <h2 id="xora-h">Xora</h2>
+      <p class="one">An AI bookkeeper for Nigerian businesses. Xora drafts and people approve. It never moves money, and it never guesses.</p>
+    </div>
+    <div class="links">
+      <span class="pill demo">Live demo</span>
+      <a href="https://xora-6jz.pages.dev" target="_blank" rel="noopener">Watch the demo ↗</a>
+      <span class="muted">Code: private · v1 in build</span>
+    </div>
+  </header>
+  <div class="p-body">
+    <div class="prose">
+      <h3>The problem</h3>
+      <p>Most small Lagos businesses run on bank alerts and memory. Accounting software assumes an accountant on staff, and AI bookkeepers post confident entries nobody checked.</p>
+      <h3>What I built</h3>
+      <p>Statement import for CSV, Excel, PDF, OFX and QIF, including Nigerian bank layouts, with duplicates removed across overlapping statements. A double-entry ledger with period locks and reversals. Anything Xora can't trace becomes a question to the owner, and answers can become rules. Only owner-confirmed rules post automatically; everything else waits for an approval with a PIN or emailed code.</p>
+    </div>
+    <figure class="plate">
+      <img src="assets/plates/xora.jpg" width="1440" height="900" alt="Xora demo: a Lagos company's dashboard showing free-to-spend cash, 7 bank lines Xora will not guess, and transactions awaiting approval." loading="lazy">
+      <figcaption><span>Plate 4 · Xora demo</span><span>Real software, fictional data</span></figcaption>
+    </figure>
+  </div>
+  <div class="drawing" data-sys="xora"></div>
+  <div class="triad">
+    <section><h3>Decisions</h3><ol class="dec">
+      <li><b>Questions instead of assumptions.</b> An unexplained transaction goes to an inbox with a one-tap answer, not a "best guess" category.</li>
+      <li><b>Every naira has a home.</b> Each bank balance is split into tax owed, money due to others, bills due and what's free to spend.</li>
+      <li><b>Reports tie to the trial balance.</b> If they don't add up, the report says so.</li>
+    </ol></section>
+    <section class="never"><h3>Never</h3><ul>
+      <li>Xora never moves money.</li>
+      <li>A rule the owner hasn't confirmed never posts on its own.</li>
+      <li>The chat assistant proposes changes and never posts them.</li>
+    </ul></section>
+    <section><h3>Measured</h3><ul class="meas">
+      <li><strong>5 statement formats</strong><span>CSV, Excel, PDF, OFX and QIF, with Nigerian bank layouts</span></li>
+      <li><strong>4 roles</strong><span>owner, admin, accountant and viewer, with step-up approval for sensitive actions</span></li>
+      <li><strong>A full month, start to finish</strong><span>the public demo keeps a fictional Lagos company's books on the real software</span></li>
+    </ul></section>
+  </div>
+  <div class="tblock" aria-label="Title block">
+    <div><b>Sheet</b><span>A-04 of A-07</span></div>
+    <div><b>Role</b><span>Founder, sole engineer</span></div>
+    <div><b>Period</b><span>Dec 2025 – now</span></div>
+    <div><b>Status</b><span>Demo live · v1 in build</span></div>
+    <div class="wide" style="grid-column:1/-1"><b>Stack</b><span>Python 3.12 · FastAPI · SQLAlchemy · Alembic · PostgreSQL · React · TypeScript · Vite</span></div>
+  </div>
+</article>
+
+<!-- A-05 HORC -->
+<article class="sheet" id="horc" data-sheet="A-05" aria-labelledby="horc-h">
+  <header class="p-head">
+    <div class="sno" aria-hidden="true">A-05</div>
+    <div>
+      <h2 id="horc-h">HORC Research Engine</h2>
+      <p class="one">A research lab for FX market structure, built to kill ideas before they cost money.</p>
+    </div>
+    <div class="links">
+      <span class="pill priv">Private · case study</span>
+      <span class="muted">Python · Rust · Pine</span>
+    </div>
+  </header>
+  <div class="p-body solo">
+    <div class="prose">
+      <div>
+        <h3>The problem</h3>
+        <p>Trading ideas are easy to fall in love with and easy to backtest into looking good. I needed a lab where every rule is mechanized exactly, every study is declared before its data is read, and costs get the last word.</p>
+      </div>
+      <div>
+        <h3>What I built</h3>
+        <p>A Python engine is the single authority, the oracle. A std-only Rust executor reproduces it byte for byte, about 100 times faster, so big replays are cheap and any drift is caught. Studies are preregistered, run on development data, then read once on a sealed holdout with real spreads. Every verdict, null results included, goes into an append-only ledger. A TradingView indicator draws the certified engine on live charts.</p>
+      </div>
+    </div>
+  </div>
+  <div class="drawing" data-sys="horc"></div>
+  <div class="triad">
+    <section><h3>Decisions</h3><ol class="dec">
+      <li><b>Python defines, Rust replays.</b> The fast path can never quietly change the rules, because parity with the oracle is checked on every change.</li>
+      <li><b>Bit-exact float64, no silent tick migration.</b> Normalizing prices to ticks is its own study, run on the oracle first, with every changed event explained.</li>
+      <li><b>Fail closed on ambiguity.</b> Two events on the same five-minute bar have no knowable order, so the event ends there. No reading it from candle shape.</li>
+      <li><b>Spend tokens before features.</b> The indicator lives under TradingView's 100k compiled-token cap. I merge and delete before I add.</li>
+    </ol></section>
+    <section class="never"><h3>Never</h3><ul>
+      <li>An edge is never claimed before fresh data and real costs.</li>
+      <li>A null result is never repaired after the fact. It's recorded.</li>
+      <li>The Rust engine never introduces a rule.</li>
+    </ul></section>
+    <section><h3>Measured</h3><ul class="meas">
+      <li><strong>2,055 s → 20 s</strong><span>full-stack replay, byte-identical to the Python oracle on all 25 panels</span></li>
+      <li><strong>22 years of FX</strong><span>dozens of preregistered studies; most were null, and all of them are kept</span></li>
+      <li><strong>+0.21 R gross, −0.04 R net</strong><span>the best signal held across 18,000 trades, then failed on reserved data at my real broker cost. Shelved.</span><cite>CZR-MAJ-1 · 24 Oct 2026</cite></li>
+    </ul></section>
+  </div>
+  <div class="tblock" aria-label="Title block">
+    <div><b>Sheet</b><span>A-05 of A-07</span></div>
+    <div><b>Role</b><span>Sole engineer and researcher</span></div>
+    <div><b>Period</b><span>2026 – now</span></div>
+    <div><b>Status</b><span>Private</span></div>
+    <div class="wide" style="grid-column:1/-1"><b>Stack</b><span>Python · Rust (std only) · Pine Script v6 · append-only ledgers · preregistered study specs</span></div>
+  </div>
+</article>
+
+<!-- A-06 CERTIFY -->
+<article class="sheet" id="certify" data-sheet="A-06" aria-labelledby="certify-h">
+  <header class="p-head">
+    <div class="sno" aria-hidden="true">A-06</div>
+    <div>
+      <h2 id="certify-h">Certify</h2>
+      <p class="one">Cohort certificates with registration links, an approval gate, PDFs with QR checks and email dispatch. In daily use by the course team.</p>
+    </div>
+    <div class="links">
+      <span class="pill priv">Internal · in use</span>
+      <span class="muted">Laravel · Livewire</span>
+    </div>
+  </header>
+  <div class="p-body solo">
+    <div class="prose">
+      <div>
+        <h3>The problem</h3>
+        <p>Certificates are what participants keep. They have to arrive, carry the right name and stay verifiable, on a host where the disk is wiped on every deploy and no background worker runs.</p>
+      </div>
+      <div>
+        <h3>What I built</h3>
+        <p>I extracted the certificate pipeline from the main site into its own app, so it could be deployed and hardened alone. Each cohort gets a registration link, every registration passes an approval gate, approved certificates render on demand, and sending them is a separate, deliberate step.</p>
+      </div>
+    </div>
+  </div>
+  <div class="drawing" data-sys="certify"></div>
+  <div class="triad">
+    <section><h3>Decisions</h3><ol class="dec">
+      <li><b>No queue worker.</b> Every email is sent synchronously. Bulk sends are split into small batches across page requests, so nothing depends on a process that can die quietly.</li>
+      <li><b>Signatures live in the database.</b> They're the one asset that can't be regenerated, and the disk is wiped on deploy.</li>
+      <li><b>Approval before generation.</b> Nothing is issued automatically.</li>
+      <li><b>Additive migrations only.</b> Live cohorts are mid-course, so the schema only grows.</li>
+    </ol></section>
+    <section class="never"><h3>Never</h3><ul>
+      <li>Certificate delivery never depends on a worker staying alive.</li>
+      <li>A send is never able to email the same person twice.</li>
+      <li>The disk is never the source of truth for a signature.</li>
+    </ul></section>
+    <section><h3>Measured</h3><ul class="meas">
+      <li><strong>0 background workers</strong><span>to monitor, restart or forget about</span></li>
+      <li><strong>Resumable by design</strong><span>a send survives a reload, a crash or a closed tab</span></li>
+      <li><strong>Live with real cohorts</strong><span>registration, approval, PDF, QR check and dispatch, in daily use</span></li>
+    </ul></section>
+  </div>
+  <div class="tblock" aria-label="Title block">
+    <div><b>Sheet</b><span>A-06 of A-07</span></div>
+    <div><b>Role</b><span>Sole engineer</span></div>
+    <div><b>Period</b><span>Jul 2026 – now</span></div>
+    <div><b>Status</b><span>Internal, in use</span></div>
+    <div class="wide" style="grid-column:1/-1"><b>Stack</b><span>Laravel 12 · Livewire 3 · MySQL · Mailgun · Laravel Cloud · PDF + QR verification</span></div>
+  </div>
+</article>
+
+<!-- A-07 GROUPMEMORY -->
+<article class="sheet" id="groupmemory" data-sheet="A-07" aria-labelledby="groupmemory-h">
+  <header class="p-head">
+    <div class="sno" aria-hidden="true">A-07</div>
+    <div>
+      <h2 id="groupmemory-h">groupmemory</h2>
+      <p class="one">A Telegram community's memory, readable by any member's own AI, with a receipt for every answer.</p>
+    </div>
+    <div class="links">
+      <span class="pill priv">Private · v0.2</span>
+      <span class="muted">Python · SQLite · MCP</span>
+    </div>
+  </header>
+  <div class="p-body solo">
+    <div class="prose">
+      <div>
+        <h3>The problem</h3>
+        <p>Big Telegram communities teach a lot and remember none of it. Pasting chats into an AI gives confident summaries with no sources, and nobody can prove who said what.</p>
+      </div>
+      <div>
+        <h3>What I built</h3>
+        <p>A consent-first bot archives the group into SQLite, chaining every message to the one before and sealing the chain daily. An MCP server with 26 tools lets a member's own AI search, cite and prove messages. No model runs on the server, so there's no inference bill. Owners can export a cited Course Pack for AI coding agents and get paid in Telegram Stars.</p>
+      </div>
+    </div>
+  </div>
+  <div class="drawing" data-sys="groupmemory"></div>
+  <div class="triad">
+    <section><h3>Decisions</h3><ol class="dec">
+      <li><b>A sense organ, not another AI.</b> The server finds and proves; the member's own AI does the talking.</li>
+      <li><b>One process, one SQLite file.</b> Graceful drain, a single-instance lock and encrypted off-site backups that restore themselves onto an empty disk.</li>
+      <li><b>Payments without signup.</b> Telegram Stars invoices and subscriptions, recorded in an idempotent ledger.</li>
+    </ol></section>
+    <section class="never"><h3>Never</h3><ul>
+      <li>No model runs on the server.</li>
+      <li>Nothing is archived without consent, and /forgetme really erases.</li>
+      <li>An answer never arrives without the message it came from.</li>
+    </ul></section>
+    <section><h3>Measured</h3><ul class="meas">
+      <li><strong>~190 MB idle</strong><span>~227 MB peak at 200,000 messages</span></li>
+      <li><strong>86 tests</strong><span>including the real bot against a fake Telegram API</span></li>
+      <li><strong>26 tools · 8 prompts</strong><span>over streamable HTTP and stdio</span></li>
+    </ul></section>
+  </div>
+  <div class="tblock" aria-label="Title block">
+    <div><b>Sheet</b><span>A-07 of A-07</span></div>
+    <div><b>Role</b><span>Sole engineer</span></div>
+    <div><b>Period</b><span>Oct 2026 – now</span></div>
+    <div><b>Status</b><span>Private, v0.2</span></div>
+    <div class="wide" style="grid-column:1/-1"><b>Stack</b><span>Python · SQLite · Model Context Protocol · Telegram Bot API · Telegram Stars · Docker</span></div>
+  </div>
+</article>
+
+<!-- DETAILS -->
+<section class="sheet" id="details" data-sheet="D" aria-labelledby="details-h">
+  <p class="eyebrow"><b>Details</b> · smaller drawings</p>
+  <div class="sec-h"><h2 id="details-h">Tools that did one job well</h2><p>Smaller builds, most of them made to remove a job I was doing by hand.</p></div>
+  <div class="details">
+    <article>
+      <div class="dn"><span>D-01</span><span class="pill live">Public repo</span></div>
+      <h3>Results Compiler</h3>
+      <p>Merges five monthly test files into one formatted results report. Matches participants across tests despite name variations and logs every change. Collation went from 2–3 days to minutes, with errors down from 5–10% to zero.</p>
+      <a href="https://github.com/Lovisuals/mljresultscompiler" target="_blank" rel="noopener">github.com/Lovisuals/mljresultscompiler ↗</a>
+      <span class="stk">Python · pandas · openpyxl · FastAPI</span>
+    </article>
+    <article>
+      <div class="dn"><span>D-02</span><span class="pill priv">Private</span></div>
+      <h3>career-mcp</h3>
+      <p>A local MCP server: Claude searches roles and fills applications in your own Chrome, then stops at every final button. It never sees your password and never sends your data anywhere.</p>
+      <span class="stk">TypeScript · MCP · Playwright</span>
+    </article>
+    <article>
+      <div class="dn"><span>D-03</span><span class="pill live">Public repo</span></div>
+      <h3>CRYPTOZero</h3>
+      <p>Real-time order-flow analysis for Binance spot markets: one combined WebSocket stream, a gap-proof level-2 order book, cumulative volume delta, iceberg and absorption detection, signals to Telegram.</p>
+      <a href="https://github.com/Lovisuals/CRYPTOZero" target="_blank" rel="noopener">github.com/Lovisuals/CRYPTOZero ↗</a>
+      <span class="stk">Python · asyncio · Binance WebSocket · Telegram</span>
+    </article>
+    <article>
+      <div class="dn"><span>D-04</span><span class="pill priv">Private</span></div>
+      <h3>TradeDesk</h3>
+      <p>An FX carry portfolio on MetaTrader 5, built with the brakes first: demo by default, a typed arming phrase for real money, a 2% daily-loss flatten, a 15% drawdown halt and a STOP-file kill switch.</p>
+      <span class="stk">Python · MetaTrader 5 · FRED rates</span>
+    </article>
+    <article>
+      <div class="dn"><span>D-05</span><span class="pill priv">Private script</span></div>
+      <h3>HORC Coordinates</h3>
+      <p>The TradingView indicator that draws the HORC engine's levels on live charts, kept inside the platform's 100,256 compiled-token limit by merging and deleting before adding.</p>
+      <span class="stk">Pine Script v6</span>
+    </article>
+    <article>
+      <div class="dn"><span>D-06</span><span class="pill live">Public repo</span></div>
+      <h3>MedLocum content bot</h3>
+      <p>Runs content for the academy's Telegram channel and group of 36,000+ members: drafts, scheduled, published and archived posts, cross-posting and owner-gated moderation, all from inside Telegram.</p>
+      <a href="https://github.com/Lovisuals/medlocum_content_bot" target="_blank" rel="noopener">github.com/Lovisuals/medlocum_content_bot ↗</a>
+      <span class="stk">Python · aiogram 3 · PostgreSQL · APScheduler · Alembic</span>
+    </article>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section class="sheet" id="method" data-sheet="S" aria-labelledby="method-h">
+  <p class="eyebrow"><b>Specification</b> · how I work with AI agents</p>
+  <div class="sec-h"><h2 id="method-h">AI writes a lot of my code. It doesn't decide what's true.</h2></div>
+  <p class="method-lede">I run Claude Code every day across about ten projects, with agents in separate worktrees and MCP servers I write myself. Speed is the easy part. These four rules keep the output honest, and each one is enforced by a tool rather than by memory.</p>
+  <div class="rules">
+    <div><span class="cap">S-1</span><h3>The specification is the source of truth</h3><p>Database migrations are generated from SQL blocks in the spec. A migration that drifts from the spec fails CI.</p><code>generate-migrations.mjs --check</code></div>
+    <div><span class="cap">S-2</span><h3>Boundaries are checked by tools</h3><p>The web app can't import the code that unseals credentials; a dependency rule fails the build if it tries. A test fails if banned words reach the trader-facing copy.</p><code>pnpm deps → dependency-cruiser</code></div>
+    <div><span class="cap">S-3</span><h3>Tests are evidence, not targets</h3><p>Nobody edits a test or an expected value to make it pass. If the engine disagrees with the Truth Set, work stops and the disagreement gets escalated.</p><code>CONTRIBUTING.md · rule 2</code></div>
+    <div><span class="cap">S-4</span><h3>Everyone goes through the same gate</h3><p>Mine or the agent's, every pull request runs typecheck, lint, dependency rules, unit tests and database tests on a real PostgreSQL before it merges and deploys.</p><code>pnpm typecheck &amp;&amp; pnpm lint &amp;&amp; pnpm deps &amp;&amp; pnpm test:all</code></div>
+  </div>
+</section>
+
+<!-- REVISIONS -->
+<section class="sheet" id="revisions" data-sheet="R" aria-labelledby="rev-h">
+  <p class="eyebrow"><b>Revisions</b> · how this set was drawn</p>
+  <div class="sec-h"><h2 id="rev-h">I learned the operations before I automated them</h2><p>Most of the systems in this set started as a job I did by hand.</p></div>
+  <div class="tbl-wrap">
+    <table class="revs">
+      <thead><tr><th scope="col">Rev</th><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+      <tbody>
+        <tr><td><span><i>A</i></span></td><td>2019</td><td>Office Assistant, Dovewood Consulting. Learned how an office actually runs.</td></tr>
+        <tr><td><span><i>B</i></span></td><td>2022</td><td>Care Manager and PA to the CEO, Beachmore Homecare, Lagos.</td></tr>
+        <tr><td><span><i>C</i></span></td><td>Sep 2024</td><td>Social Media Manager and Virtual Course Coordinator, Medical Locum Jobs (remote). Ran the academy's courses by hand.</td></tr>
+        <tr><td><span><i>D</i></span></td><td>Sep 2025</td><td>YouTube Channel Manager, Aforevo (Murphy Ben International).</td></tr>
+        <tr><td><span><i>E</i></span></td><td>2026</td><td>Automated the course operations: the Results Compiler, certificates and a content bot. Then built the academy's e-learning platform and Certify.</td></tr>
+        <tr><td><span><i>F</i></span></td><td>2026</td><td>Shipped ShelfLink, Xora's demo and The Notebook. Built the HORC research engine in Python and Rust.</td></tr>
+        <tr class="now"><td><span><i>G</i></span></td><td>Now</td><td>Open to backend, platform and AI automation roles. Remote, UTC+1.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="edu">B.A. (Ed.) English Language, Tai Solarin Federal University of Education. It shows in the specs.</p>
+</section>
+
+<!-- CONTACT -->
+<section class="sheet" id="hire" data-sheet="H" aria-labelledby="hire-h">
+  <div class="hire-grid">
+    <div>
+      <p class="stamp" aria-hidden="true">Issued for hire</p>
+      <h2 id="hire-h">Need a system that holds when something breaks?</h2>
+      <p>I'm looking for backend, platform and AI automation work: full-time or contract, remote. I write the spec, build it, ship it and keep it running.</p>
+      <p class="overlap" id="overlap">Lagos is UTC+1.</p>
+    </div>
+    <div>
+      <div class="mail">
+        <span class="addr">mail.lovisuals@gmail.com</span>
+        <button class="btn primary" type="button" data-copy="mail.lovisuals@gmail.com">Copy email</button>
+      </div>
+      <ul class="reach">
+        <li><span>LinkedIn</span><a href="https://www.linkedin.com/in/opeyemi-lawal-b72a67249" target="_blank" rel="noopener">in/opeyemi-lawal ↗</a></li>
+        <li><span>GitHub</span><a href="https://github.com/Lovisuals" target="_blank" rel="noopener">github.com/Lovisuals ↗</a></li>
+        <li><span>CV</span><a href="https://drive.google.com/file/d/1l7C6FJSdVL9RhxtWOfAuPRMVadETXaLV/view" target="_blank" rel="noopener">Opeyemi_Michael_Lawal_CV.pdf ↗</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap"><div class="in"><span>© 2026 Opeyemi Michael Lawal</span><span>Drawn by hand in HTML, CSS and JavaScript. No framework, no tracker.</span><span>Keys: 0–7 sheets · T theme</span></div></footer>
+
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NS = 'http://www.w3.org/2000/svg';
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+
+/* ---------- data: one entry per system; faults are shared by the bench and the drawings ---------- */
+const N = (id, x, y, t, s, w = 150, h = 56) => ({ id, x, y, t, s, w, h });
+const SYS = {
+  notebook: { no: 'A-01', name: 'The Notebook', short: 'Notebook', w: 920, h: 250,
+    label: 'Runtime diagram of The Notebook: browser, Cloudflare, Next.js web server, PostgreSQL with job queue, Node worker and the MetaApi broker connection.',
+    nodes: [N('browser', 16, 24, "Trader's browser", 'TLS only', 136), N('cf', 182, 24, 'Cloudflare', 'DNS · TLS · WAF', 136),
+      N('web', 348, 24, 'web · Next.js', 'seals · role nb_web', 160), N('db', 548, 24, 'PostgreSQL', 'data + job queue · RLS', 176),
+      N('worker', 548, 170, 'worker · Node', 'unseals · role nb_worker', 176), N('meta', 764, 170, 'MetaApi', 'broker connection', 140)],
+    edges: [['browser', 'cf'], ['cf', 'web'], ['web', 'db'], ['db', 'worker'], ['worker', 'meta']],
+    trace: { name: 'Connect a broker account', steps: [
+      { n: ['browser', 'cf', 'web'], e: [['browser', 'cf'], ['cf', 'web']], t: 'The trader submits a read-only investor password. It reaches only our server, over TLS.' },
+      { n: ['web'], e: [], t: "The web server seals it with a fresh AES-256-GCM key, wrapped with the worker's RSA-OAEP public key. The web tier itself can't decrypt it." },
+      { n: ['web', 'db'], e: [['web', 'db']], t: 'The sealed blob goes into a table the web role can insert into but never read back. It expires in 30 minutes.' },
+      { n: ['db', 'worker'], e: [['db', 'worker']], t: 'The worker claims the job and consumes the credential exactly once (DELETE … RETURNING), committed before any provider call.' },
+      { n: ['worker', 'meta'], e: [['worker', 'meta']], t: 'It unseals with the private key and provisions the account. After this, no copy of the password exists in the system.' },
+      { n: ['meta', 'worker', 'db'], e: [['meta', 'worker'], ['worker', 'db']], t: 'Deals arrive and are stored append-only, each version keyed by its content hash.' },
+      { n: ['worker', 'db'], e: [['worker', 'db']], t: 'A full deterministic rebuild runs. Only changed trades are written; unchanged input writes zero rows.' },
+      { n: ['db', 'web', 'cf', 'browser'], e: [['db', 'web'], ['web', 'cf'], ['cf', 'browser']], t: 'The page polls for status and renders on the server. The browser never talks to the database.' }] },
+    faults: [
+      { id: 'nb-crash', label: 'Crash the worker while it holds a password', cmd: 'kill worker   # mid-provisioning', hit: ['worker'], ok: ['db'],
+        out: ['credential row: already consumed (DELETE … RETURNING, committed first)', 'retry with the same password: impossible by design'],
+        verdict: 'The trader re-enters the password once. No copy of it exists anywhere.', src: 'ADR-012 · spec §4.2' },
+      { id: 'nb-noop', label: 'Re-sync an account with nothing new', cmd: 'sync account   # no new deals', hit: [], ok: ['worker', 'db'],
+        out: ['rebuild: full and deterministic', 'input fingerprints: all unchanged'],
+        verdict: 'Zero rows written. A test asserts it.', src: 'ADR-016 · test I-REC-2' },
+      { id: 'nb-tenant', label: "Read another trader's trades", cmd: 'select * from trades where owner <> me', hit: ['web'], ok: ['db'],
+        out: ['check 1, app ownership filter: denied', 'check 2, Postgres row-level security under a non-bypass role: denied'],
+        verdict: 'Isolation holds twice. Neither layer is trusted alone.', src: 'spec §1.1 A6 · tests R1–R8' }] },
+
+  shelflink: { no: 'A-02', name: 'ShelfLink', w: 920, h: 340,
+    label: 'Flow diagram of ShelfLink: seller on Telegram, Cloudflare Worker, Supabase, shelf site, buyer and WhatsApp.',
+    nodes: [N('seller', 16, 30, 'Seller', 'EN or Pidgin'), N('tg', 216, 30, 'Telegram', 'bot · media store'),
+      N('worker', 400, 130, 'Cloudflare Worker', 'webhook · parser · cron', 184), N('supa', 720, 30, 'Supabase', 'Postgres · RLS'),
+      N('shelf', 720, 254, 'Shelf site', 'React on Workers'), N('buyer', 416, 254, 'Buyer', 'no app, no account'), N('wa', 16, 254, 'WhatsApp', 'one order message')],
+    edges: [['seller', 'tg'], ['tg', 'worker'], ['worker', 'supa'], ['worker', 'shelf'], ['shelf', 'buyer'], ['buyer', 'wa'], ['wa', 'seller']],
+    trace: { name: 'A seller posts a photo', steps: [
+      { n: ['seller', 'tg'], e: [['seller', 'tg']], t: "A seller sends a photo with '₦15k' typed under it." },
+      { n: ['tg', 'worker'], e: [['tg', 'worker']], t: "Telegram calls the Worker's webhook." },
+      { n: ['worker'], e: [], t: 'The parser reads the price in any common form: 15000, ₦15k, N15,000.' },
+      { n: ['worker', 'supa'], e: [['worker', 'supa']], t: "The item is written to Supabase, keyed to the seller's shop, with Sold, Price, Hide and Delete buttons sent back in the chat." },
+      { n: ['worker', 'shelf'], e: [['worker', 'shelf']], t: 'It appears on the shelf at shelflink.com.ng/shelf/<shop>. The photo is served through the Worker.' },
+      { n: ['shelf', 'buyer'], e: [['shelf', 'buyer']], t: 'A buyer scrolls, filters and fills a bag.' },
+      { n: ['buyer', 'wa', 'seller'], e: [['buyer', 'wa'], ['wa', 'seller']], t: 'Checkout is one WhatsApp message to the seller with the items, links and subtotal.' },
+      { n: ['worker', 'tg', 'seller'], e: [['worker', 'tg'], ['tg', 'seller']], t: "At 7 am each active seller gets yesterday's visits, views and orders started." }] },
+    faults: [
+      { id: 'sl-price', label: "Type the price as 'N15,000'", cmd: "parse 'N15,000'", hit: [], ok: ['worker'],
+        out: ['price: 15000 NGN'], verdict: 'Accepted. 15000, ₦15k and N15,000 all mean the same price.', src: 'worker/src/parser.ts' },
+      { id: 'sl-nochan', label: 'Open a shop without a Telegram channel', cmd: 't.me/ShelfLinkBot?start=web', hit: [], ok: ['seller', 'tg', 'worker'],
+        out: ['channel: not required', 'shop: open at /shelf/<name> after the first photo'],
+        verdict: 'The bot chat is the whole shop. A channel is optional for power users.', src: 'README · seller flow' }] },
+
+  academy: { no: 'A-03', name: 'MedLocum Academy', short: 'Academy', w: 920, h: 380,
+    label: 'Diagram of MedLocum Academy: Telegram course export through transcription and editorial review into the LMS, with partner links, Paystack, certificates and a verify page.',
+    nodes: [N('export', 16, 24, 'Telegram export', 'lectures + media'), N('whisper', 196, 24, 'Transcription', 'whisper-large-v3'),
+      N('editor', 376, 24, 'Writer + editor', 'clinical review', 170), N('seeder', 580, 24, 'Course as data', 'seeder · private bucket', 170),
+      N('learner', 16, 166, 'Learner'), N('partner', 196, 166, 'Partner link', '/a/CODE · 30 days'), N('pay', 376, 166, 'Paystack', 'fees · commission', 170),
+      N('lms', 580, 166, 'LMS · Laravel 12', 'Filament · Livewire', 170), N('mysql', 784, 166, 'MySQL', 'Laravel Cloud', 120),
+      N('cert', 580, 308, 'Certificate', 'PDF on demand', 170), N('verify', 784, 308, 'Verify page', 'QR check', 120)],
+    edges: [['export', 'whisper'], ['whisper', 'editor'], ['editor', 'seeder'], ['seeder', 'lms'], ['learner', 'partner'], ['partner', 'pay'], ['pay', 'lms'], ['lms', 'mysql'], ['lms', 'cert'], ['cert', 'verify']],
+    trace: { name: 'A Telegram course goes live', steps: [
+      { n: ['export', 'whisper'], e: [['export', 'whisper']], t: "A lecturer's Telegram course is exported with all its media. Learners' own messages are left out." },
+      { n: ['whisper', 'editor'], e: [['whisper', 'editor']], t: 'Every recording is transcribed; a writer drafts each lesson from the transcript and the handbook.' },
+      { n: ['editor', 'seeder'], e: [['editor', 'seeder']], t: 'A clinical editor reviews it, then the course is written as data: 55 lessons, 39 with video, 5 tests.' },
+      { n: ['seeder', 'lms'], e: [['seeder', 'lms']], t: 'The seeder publishes it to the LMS; videos sit in a private bucket.' },
+      { n: ['learner', 'partner', 'pay'], e: [['learner', 'partner'], ['partner', 'pay']], t: "A learner registers through a partner's link. The partner remits the fee through Paystack, less a commission the ledger records." },
+      { n: ['pay', 'lms', 'mysql'], e: [['pay', 'lms'], ['lms', 'mysql']], t: "Enrolment opens the self-paced course. Grading follows that course's own rule." },
+      { n: ['lms', 'cert'], e: [['lms', 'cert']], t: 'On completion the learner chooses the name on the certificate once; the PDF is built on demand.' },
+      { n: ['cert', 'verify'], e: [['cert', 'verify']], t: 'Anyone can check the certificate by scanning its QR code.' }] },
+    faults: [
+      { id: 'ac-enum', label: 'Slip an unknown value into a production row', cmd: "update courses set category = 'ultrasound'", hit: ['mysql'], ok: ['lms'],
+        out: ['cast: SafeBackedEnum → null (unknown)', 'admin table: renders; the row shows as unknown'],
+        verdict: 'The page still loads. One bad row used to take the whole table down with a 500.', src: 'App\\Casts\\SafeBackedEnum · SafeEnumCastTest' },
+      { id: 'ac-retake', label: 'Retake a test three times', cmd: 'submit attempt 3', hit: [], ok: ['lms'],
+        out: ['rule: set per course (best attempt, weighted, or pass mark)'],
+        verdict: "The course's own rule decides. The old manual formula is one option, not the only one.", src: 'grading settings · course config' }] },
+
+  xora: { no: 'A-04', name: 'Xora', w: 920, h: 370,
+    label: 'Pipeline diagram of Xora: bank statement, parser, de-duplication, owner rules, questions, draft entries, approval, ledger, reports.',
+    nodes: [N('stmt', 16, 24, 'Bank statement', 'CSV · XLSX · PDF · OFX', 164), N('parse', 210, 24, 'Parser', 'Nigerian layouts'),
+      N('dedupe', 390, 24, 'De-duplicate', 'across overlaps'), N('rules', 570, 24, "Owner's rules", 'confirmed only'),
+      N('draft', 764, 24, 'Draft entry', 'waits for approval', 140), N('question', 570, 160, 'Question', 'to the owner'),
+      N('approve', 764, 160, 'Approval', 'roles · PIN step-up', 140), N('home', 390, 296, 'Every naira', 'has a home'),
+      N('reports', 570, 296, 'Reports', 'tie to trial balance'), N('ledger', 764, 296, 'Ledger', 'double entry', 140)],
+    edges: [['stmt', 'parse'], ['parse', 'dedupe'], ['dedupe', 'rules'], ['rules', 'draft'], ['rules', 'question'], ['draft', 'approve'], ['approve', 'ledger'], ['ledger', 'reports'], ['reports', 'home']],
+    trace: { name: 'Import a GTBank statement', steps: [
+      { n: ['stmt', 'parse'], e: [['stmt', 'parse']], t: 'The owner uploads a statement export in whatever format the bank gives.' },
+      { n: ['parse', 'dedupe'], e: [['parse', 'dedupe']], t: 'Lines are parsed, then checked against overlapping statements already imported.' },
+      { n: ['dedupe', 'rules'], e: [['dedupe', 'rules']], t: 'Each new line is matched against rules the owner has confirmed.' },
+      { n: ['rules', 'draft'], e: [['rules', 'draft']], t: 'Matches become draft entries.' },
+      { n: ['rules', 'question'], e: [['rules', 'question']], t: "Anything Xora can't trace becomes a question to the owner, not a guess." },
+      { n: ['question', 'rules'], e: [['question', 'rules']], t: 'The owner answers in one tap. The answer can become a new rule.' },
+      { n: ['draft', 'approve', 'ledger'], e: [['draft', 'approve'], ['approve', 'ledger']], t: 'Drafts wait for approval by role, with a PIN or emailed code for sensitive steps, then post to the ledger.' },
+      { n: ['ledger', 'reports', 'home'], e: [['ledger', 'reports'], ['reports', 'home']], t: 'Reports tie to the trial balance, and every bank balance is split into tax, money owed, bills due and free cash.' }] },
+    faults: [
+      { id: 'xo-unknown', label: 'Upload a transfer nobody can explain', cmd: 'import line  "TRF/0091 ADEBAYO"', hit: ['rules'], ok: ['question'],
+        out: ['rule match: none', 'posting: blocked'],
+        verdict: 'Xora asks the owner instead of guessing. Nothing posts until someone answers.', src: 'questions inbox · README' },
+      { id: 'xo-overlap', label: 'Upload two statements that overlap', cmd: 'import jan.pdf feb.ofx   # 9 days shared', hit: [], ok: ['dedupe'],
+        out: ['duplicates across statements: dropped before matching'],
+        verdict: 'Each bank line is counted once, whichever file it came from.', src: 'statement import · README' },
+      { id: 'xo-chat', label: 'Ask the assistant to fix the books', cmd: 'chat "move this to rent"', hit: [], ok: ['approve'],
+        out: ['assistant: proposal created', 'ledger: unchanged'],
+        verdict: 'It proposes. A person approves it, or it never happens.', src: 'chat assistant · README' }] },
+
+  horc: { no: 'A-05', name: 'HORC', w: 920, h: 390,
+    label: 'Research pipeline of the HORC engine: market bars exported bit-exact, Python oracle and Rust executor meeting at a parity gate, then frozen study spec, development read, sealed holdout, costs and the verdict ledger.',
+    nodes: [N('bars', 16, 166, 'Market bars', '22 years FX · M5', 150), N('export', 196, 166, 'Export', 'bit-exact float64'),
+      N('py', 386, 76, 'Python oracle', 'the only authority'), N('rs', 386, 256, 'Rust executor', 'std-only replay'),
+      N('gate', 576, 166, 'Parity gate', 'byte-identical'), N('spec', 764, 16, 'Study spec', 'frozen first', 140),
+      N('dev', 764, 116, 'Dev read', 'fail = stop', 140), N('hold', 764, 216, 'Holdout', 'unsealed once', 140),
+      N('cost', 764, 316, 'Costs', 'real spreads', 140), N('ledger', 576, 316, 'Verdict ledger', 'nulls kept')],
+    edges: [['bars', 'export'], ['export', 'py'], ['export', 'rs'], ['py', 'gate'], ['rs', 'gate'], ['gate', 'dev'], ['spec', 'dev'], ['dev', 'hold'], ['hold', 'cost'], ['cost', 'ledger']],
+    trace: { name: 'Test one idea', steps: [
+      { n: ['bars', 'export'], e: [['bars', 'export']], t: 'Bars are exported once as bit-exact float64 binaries, so every engine reads identical input.' },
+      { n: ['export', 'py'], e: [['export', 'py']], t: "The Python oracle defines every rule. It's the only authority." },
+      { n: ['export', 'rs'], e: [['export', 'rs']], t: 'The Rust executor replays the full stack: 2,055 s becomes 20 s.' },
+      { n: ['py', 'rs', 'gate'], e: [['py', 'gate'], ['rs', 'gate']], t: 'The parity gate compares both outputs byte for byte on all 25 panels. Any difference stops everything after it.' },
+      { n: ['spec'], e: [], t: 'The hypothesis, metric and pass mark are written and frozen before any outcome is read.' },
+      { n: ['gate', 'spec', 'dev'], e: [['gate', 'dev'], ['spec', 'dev']], t: 'Development read. A failure here is recorded and the study stops.' },
+      { n: ['dev', 'hold', 'cost'], e: [['dev', 'hold'], ['hold', 'cost']], t: 'The holdout is unsealed exactly once. Real spreads and slippage are charged.' },
+      { n: ['cost', 'ledger'], e: [['cost', 'ledger']], t: 'The verdict goes into an append-only ledger: supported, not supported or not estimable. Nulls stay.' }] },
+    faults: [
+      { id: 'hr-byte', label: 'Make the fast engine disagree by one byte', cmd: 'parity.py full   # after a Rust change', hit: ['rs', 'gate'], ok: ['py'],
+        out: ['panel 14: 1 byte differs', 'downstream studies: not started'],
+        verdict: 'Nothing runs until parity is byte-identical again. Python is the authority; the Rust change goes back.', src: 'PARITY_REPORT · tools/parity.py' },
+      { id: 'hr-bar', label: 'Put two events on the same 5-minute bar', cmd: 'events  break(high) + break(low)  @ same M5 bar', hit: ['py'], ok: [],
+        out: ['order: unknown', 'event: terminal (AMBIG_SAME_BAR)'],
+        verdict: 'No guessing from candle shape, and no skipping ahead to a nicer event.', src: 'same-bar law · 25 Sep 2026' },
+      { id: 'hr-cost', label: 'Find an edge that only works before costs', cmd: 'confirm CZR  reserved majors 2014–2020', hit: ['cost'], ok: ['ledger'],
+        out: ['gross: +0.21 R across 18,000 trades (replicated)', 'net at 1.2 pips on reserved data: −0.04 R'],
+        verdict: 'Recorded as failed and shelved. Costs get the last word.', src: 'CZR-MAJ-1 · 24 Oct 2026' }] },
+
+  certify: { no: 'A-06', name: 'Certify', w: 920, h: 370,
+    label: 'Diagram of Certify: participant, registration link, registration, admin approval, renderer, signatures in the database, send list, Mailgun and the verify page.',
+    nodes: [N('part', 16, 24, 'Participant'), N('link', 196, 24, 'Registration link', 'one per cohort'),
+      N('reg', 386, 24, 'Registration', 'one row each'), N('render', 576, 24, 'Renderer', 'PDF on demand'),
+      N('verify', 774, 24, 'Verify page', 'QR check', 130), N('camp', 196, 164, 'Send list', 'rows written first'),
+      N('admin', 386, 164, 'Admin approval', 'nothing auto-issues'), N('sig', 576, 164, 'Signatures', 'in the database'),
+      N('mail', 16, 296, 'Mailgun', 'sendNow · batches')],
+    edges: [['part', 'link'], ['link', 'reg'], ['reg', 'admin'], ['admin', 'render'], ['sig', 'render'], ['render', 'verify'], ['admin', 'camp'], ['camp', 'mail'], ['mail', 'part']],
+    trace: { name: 'Send certificates to a cohort', steps: [
+      { n: ['part', 'link', 'reg'], e: [['part', 'link'], ['link', 'reg']], t: "Participants register through the cohort's link." },
+      { n: ['reg', 'admin'], e: [['reg', 'admin']], t: 'An admin approves each registration. Nothing is issued automatically.' },
+      { n: ['admin', 'render', 'sig'], e: [['admin', 'render'], ['sig', 'render']], t: 'Approved certificates render on demand from the registration row, with the signature read from the database.' },
+      { n: ['admin', 'camp'], e: [['admin', 'camp']], t: 'The admin starts a send. Every recipient is written as a row before the first email goes out.' },
+      { n: ['camp', 'mail'], e: [['camp', 'mail']], t: 'Each page request sends a small batch synchronously and marks those rows sent.' },
+      { n: ['mail', 'part'], e: [['mail', 'part']], t: 'The certificate arrives. A reload carries on from the next unsent row.' },
+      { n: ['render', 'verify'], e: [['render', 'verify']], t: 'The QR code on the certificate opens the public verify page.' }] },
+    faults: [
+      { id: 'ce-reload', label: 'Reload halfway through sending 400 certificates', cmd: 'reload   # at recipient 213 of 400', hit: [], ok: ['camp', 'mail'],
+        out: ['recipients: stored as rows before sending', 'rows 1–212: already marked sent'],
+        verdict: 'The send resumes at row 213. Nobody gets a second email.', src: 'CampaignSender · certify_campaign_recipients' },
+      { id: 'ce-worker', label: 'Kill the queue worker', cmd: 'kill queue:work', hit: [], ok: ['mail'],
+        out: ['queue worker: none in production', 'mail: Mail::sendNow on every call site'],
+        verdict: "There's no worker to kill. Delivery can't stall in a queue nobody is reading.", src: 'confirmed in production · 20 Sep 2026' },
+      { id: 'ce-disk', label: 'Redeploy and wipe the disk', cmd: 'deploy   # ephemeral storage cleared', hit: [], ok: ['render', 'sig'],
+        out: ['PDFs: rebuilt on demand from the registration row', 'signatures: read from the database'],
+        verdict: "Nothing is lost. The only asset that can't be regenerated was never on the disk.", src: 'Cohort::signatureDataUri()' }] },
+
+  groupmemory: { no: 'A-07', name: 'groupmemory', w: 920, h: 340,
+    label: 'Diagram of groupmemory: Telegram group, consent-first bot, history upload, SQLite archive with hash chain, MCP server, the member’s own AI, Course Pack export and Telegram Stars payments.',
+    nodes: [N('group', 16, 30, 'Telegram group'), N('bot', 196, 30, 'Bot', 'consent-first'),
+      N('upload', 196, 170, 'History upload', 'one-time link'), N('store', 386, 100, 'SQLite archive', 'hash chain · daily seal', 176),
+      N('mcp', 600, 100, 'MCP server', '26 tools · 8 prompts'), N('ai', 784, 30, 'Their own AI', 'any MCP client', 120),
+      N('pack', 784, 180, 'Course Pack', 'cited export', 120), N('stars', 386, 262, 'Telegram Stars', 'idempotent ledger', 176)],
+    edges: [['group', 'bot'], ['bot', 'store'], ['upload', 'store'], ['store', 'mcp'], ['mcp', 'ai'], ['mcp', 'pack'], ['bot', 'stars']],
+    trace: { name: 'Ask what the group decided', steps: [
+      { n: ['group', 'bot', 'store'], e: [['group', 'bot'], ['bot', 'store']], t: 'Members opt in. The bot archives the group, chaining every message to the one before it.' },
+      { n: ['store'], e: [], t: 'Each day the chain is sealed, so any later edit shows.' },
+      { n: ['ai', 'mcp'], e: [['ai', 'mcp']], t: 'A member asks their own AI. It calls search and find_sources over MCP.' },
+      { n: ['mcp', 'store'], e: [['mcp', 'store']], t: 'The archive returns matching messages with their ids. No model runs on the server.' },
+      { n: ['store', 'mcp', 'ai'], e: [['store', 'mcp'], ['mcp', 'ai']], t: 'The AI answers and cites the exact messages.' },
+      { n: ['ai', 'mcp', 'store'], e: [['ai', 'mcp'], ['mcp', 'store']], t: 'prove_message returns a tamper-evident receipt for any quote.' }] },
+    faults: [
+      { id: 'gm-edit', label: 'Edit a message after an argument', cmd: 'edit message 48211   # two days later', hit: ['group'], ok: ['store'],
+        out: ['hash chain: original kept and sealed', 'prove_message 48211: receipt with the original text and time'],
+        verdict: 'The record shows what was said and when. Signal calls with stops edited after posting get caught the same way.', src: 'quote_check · prove_message · Signals Audit' },
+      { id: 'gm-forget', label: 'Ask to be forgotten', cmd: '/forgetme', hit: [], ok: ['bot', 'store'],
+        out: ["member's messages: erased from the archive"],
+        verdict: 'Real erasure, not a hidden flag.', src: 'README · shields' },
+      { id: 'gm-bill', label: 'Run up an inference bill', cmd: 'ask 10,000 questions', hit: [], ok: ['mcp'],
+        out: ['server-side model calls: 0'],
+        verdict: 'There is no model on the server to bill for. Members bring their own AI.', src: 'README · design' }] }
+};
+const FAULTS = {};
+for (const k in SYS) for (const f of SYS[k].faults) FAULTS[f.id] = { ...f, sys: k };
+const BENCH = ['nb-crash', 'ce-reload', 'xo-unknown', 'hr-byte', 'gm-edit', 'ac-enum'];
+
+/* ---------- drawings ---------- */
+const clip = (a, b) => { // point on a's border, aimed at b's centre
+  const ax = a.x + a.w / 2, ay = a.y + a.h / 2, dx = b.x + b.w / 2 - ax, dy = b.y + b.h / 2 - ay;
+  const s = Math.min(dx ? a.w / 2 / Math.abs(dx) : Infinity, dy ? a.h / 2 / Math.abs(dy) : Infinity);
+  return [ax + dx * s, ay + dy * s];
+};
+const DRAW = {};
+function build(host) {
+  const key = host.dataset.sys, D = SYS[key];
+  host.innerHTML = `<div class="dg-head"><span class="cap">Section A–A · <b>${D.name}</b> · how it runs</span><button class="play" type="button" aria-label="Play the trace: ${D.trace.name}">▶ Trace: ${D.trace.name}</button></div>
+    <div class="dg-scroll"></div>
+    <div class="dg-foot"><ol class="steps"></ol><div class="fpanel"><span class="cap">Inject a fault</span><div class="verdict" hidden></div></div></div>`;
+  const svg = svgEl('svg', { viewBox: `0 0 ${D.w} ${D.h}`, class: 'dg', role: 'img', 'aria-label': D.label });
+  const gE = svgEl('g', {}, svg), gN = svgEl('g', {}, svg), gP = svgEl('g', {}, svg);
+  const nodes = {}, edges = {};
+  D.nodes.forEach(n => nodes[n.id] = n);
+  D.edges.forEach(([a, b]) => {
+    const p = clip(nodes[a], nodes[b]), q = clip(nodes[b], nodes[a]);
+    const line = svgEl('line', { x1: p[0], y1: p[1], x2: q[0], y2: q[1] }, gE);
+    svgEl('circle', { cx: p[0], cy: p[1], r: 2.6, class: 'port' }, gE); svgEl('circle', { cx: q[0], cy: q[1], r: 2.6, class: 'port' }, gE);
+    edges[a + '>' + b] = { p, q, line }; edges[b + '>' + a] = { p: q, q: p, line };
+  });
+  D.nodes.forEach(n => {
+    const g = svgEl('g', { class: 'node' }, gN);
+    svgEl('rect', { x: n.x, y: n.y, width: n.w, height: n.h }, g);
+    svgEl('text', { x: n.x + n.w / 2, y: n.y + n.h / 2 + (n.s ? -3 : 5), class: 'nt' }, g).textContent = n.t;
+    if (n.s) svgEl('text', { x: n.x + n.w / 2, y: n.y + n.h / 2 + 14, class: 'ns' }, g).textContent = n.s;
+    svgEl('path', { d: `M${n.x + n.w - 13} ${n.y - 7} l14 14 m0 -14 l-14 14`, class: 'xmark' }, g);
+    n.g = g;
+  });
+  $('.dg-scroll', host).appendChild(svg);
+
+  const list = $('.steps', host), panel = $('.fpanel', host), verdict = $('.verdict', host), playBtn = $('.play', host);
+  D.trace.steps.forEach((s, i) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.textContent = s.t; b.addEventListener('click', () => { stop(); show(i); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  D.faults.forEach(f => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.fault = f.id; b.setAttribute('aria-pressed', 'false'); b.textContent = f.label;
+    b.addEventListener('click', () => fault(f.id));
+    panel.insertBefore(b, verdict);
+  });
+
+  let token = 0, timer = 0, playing = false, cur = -1;
+  const clear = () => {
+    token++;
+    D.nodes.forEach(n => n.g.classList.remove('on', 'hit'));
+    Object.values(edges).forEach(e => e.line.classList.remove('lit'));
+    gP.textContent = '';
+    $$('li', list).forEach(li => li.classList.remove('cur'));
+    $$('.chip', panel).forEach(c => c.setAttribute('aria-pressed', 'false'));
+    verdict.hidden = true;
+  };
+  const packet = (a, b, t) => new Promise(done => {
+    const e = edges[a + '>' + b]; if (!e) return done();
+    e.line.classList.add('lit');
+    if (reduce) return done();
+    const c = svgEl('circle', { r: 5.5, class: 'pk' }, gP), t0 = performance.now(), dur = 560;
+    const f = now => {
+      if (t !== token) { c.remove(); return done(); }
+      const k = Math.min(1, (now - t0) / dur), ease = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+      c.setAttribute('cx', e.p[0] + (e.q[0] - e.p[0]) * ease); c.setAttribute('cy', e.p[1] + (e.q[1] - e.p[1]) * ease);
+      if (k < 1) requestAnimationFrame(f); else { c.remove(); done(); }
+    };
+    requestAnimationFrame(f);
+  });
+  async function show(i) {
+    clear(); cur = i; const t = token, s = D.trace.steps[i];
+    s.n.forEach(id => nodes[id].g.classList.add('on'));
+    list.children[i].classList.add('cur');
+    for (const [a, b] of s.e) { if (t !== token) return; await packet(a, b, t); }
+  }
+  function stop() { playing = false; clearTimeout(timer); playBtn.textContent = '▶ Trace: ' + D.trace.name; }
+  function tick() {
+    if (!playing) return;
+    if (cur + 1 >= D.trace.steps.length) { stop(); return; }
+    show(cur + 1); timer = setTimeout(tick, 3200);
+  }
+  playBtn.addEventListener('click', () => {
+    if (playing) return stop();
+    playing = true; playBtn.textContent = '❚❚ Pause trace';
+    if (cur + 1 >= D.trace.steps.length) cur = -1;
+    tick();
+  });
+  function fault(id) {
+    stop(); clear(); cur = -1;
+    const f = FAULTS[id];
+    f.hit.forEach(n => nodes[n].g.classList.add('hit'));
+    f.ok.forEach(n => nodes[n].g.classList.add('on'));
+    $(`.chip[data-fault="${id}"]`, panel).setAttribute('aria-pressed', 'true');
+    verdict.innerHTML = '<span class="cap">Fault · ' + esc(f.label) + '</span>' + esc(f.verdict) + '<span class="src">source: ' + esc(f.src) + '</span>';
+    verdict.hidden = false;
+  }
+  DRAW[key] = { fault };
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+$$('.drawing[data-sys]').forEach(build);
+
+/* ---------- fault bench ---------- */
+const flist = $('#flist'), con = $('#console');
+let benchToken = 0;
+BENCH.forEach(id => {
+  const f = FAULTS[id], li = document.createElement('li');
+  li.innerHTML = `<button class="fbtn" type="button" aria-pressed="false" data-id="${id}"><span class="sys">${esc(SYS[f.sys].short || SYS[f.sys].name)}</span><span>${esc(f.label)}</span></button>`;
+  flist.appendChild(li);
+});
+function benchLines(f) {
+  return [['c', '$ inject ' + f.cmd], ...f.out.map(o => ['', '  ' + o]),
+    ['ok', `<span>✓ HELD</span>  <i>${esc(f.verdict)}</i>`, true],
+    ['src', `  source: ${esc(f.src)} · <a href="#${f.sys}" data-open="${f.id}">open sheet ${SYS[f.sys].no} →</a>`, true]];
+}
+async function runBench(id, instant) {
+  const t = ++benchToken, f = FAULTS[id];
+  $$('.fbtn', flist).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+  con.textContent = '';
+  for (const [cls, text, html] of benchLines(f)) {
+    if (t !== benchToken) return;
+    const d = document.createElement('div'); d.className = cls;
+    if (html) d.innerHTML = text; else d.textContent = text;
+    con.appendChild(d);
+    if (!instant && !reduce) await new Promise(r => setTimeout(r, 260));
+  }
+}
+flist.addEventListener('click', e => { const b = e.target.closest('.fbtn'); if (b) runBench(b.dataset.id); });
+con.addEventListener('click', e => {
+  const a = e.target.closest('a[data-open]'); if (!a) return;
+  const f = FAULTS[a.dataset.open];
+  setTimeout(() => DRAW[f.sys] && DRAW[f.sys].fault(f.id), reduce ? 0 : 450);
+});
+runBench(BENCH[0], true);
+
+/* ---------- zones, revision cloud ---------- */
+$$('.sheet').forEach(s => {
+  const z = document.createElement('div'); z.className = 'zones'; z.setAttribute('aria-hidden', 'true');
+  z.innerHTML = '<div class="zx">' + '12345678'.split('').map(c => `<span>${c}</span>`).join('') + '</div><div class="zy">' + 'ABCD'.split('').map(c => `<span>${c}</span>`).join('') + '</div>';
+  s.prepend(z);
+});
+function scallops(x, y, w, h) {
+  const r = Math.max(9, Math.min(15, h / 4)), nx = Math.max(2, Math.round(w / (r * 1.7))), ny = Math.max(1, Math.round(h / (r * 1.7)));
+  const pts = [];
+  for (let i = 0; i <= nx; i++) pts.push([x + w * i / nx, y]);
+  for (let i = 1; i <= ny; i++) pts.push([x + w, y + h * i / ny]);
+  for (let i = 1; i <= nx; i++) pts.push([x + w - w * i / nx, y + h]);
+  for (let i = 1; i < ny; i++) pts.push([x, y + h - h * i / ny]);
+  let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 1; i <= pts.length; i++) {
+    const p = pts[i % pts.length], q = pts[i - 1], rr = (Math.hypot(p[0] - q[0], p[1] - q[1]) * .62).toFixed(1);
+    d += ` A${rr} ${rr} 0 0 1 ${p[0].toFixed(1)} ${p[1].toFixed(1)}`;
+  }
+  return d + 'Z';
+}
+const wrap = $('.h1wrap'), rev = $('#rev');
+let drawn = false;
+function cloud() {
+  $('.cloud', wrap)?.remove();
+  const base = wrap.getBoundingClientRect(), rects = [...rev.getClientRects()];
+  if (!rects.length) return;
+  const svg = svgEl('svg', { class: 'cloud', 'aria-hidden': 'true' });
+  let last;
+  rects.forEach(r => {
+    const x = r.left - base.left - 10, y = r.top - base.top + r.height * .1, w = r.width + 18, h = r.height * .92;
+    const p = svgEl('path', { d: scallops(x, y, w, h) }, svg);
+    if (!drawn && !reduce) { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: 1100, delay: 250, easing: 'ease-out', fill: 'forwards' }); }
+    last = { x, y, w };
+  });
+  const g = svgEl('g', { class: 'tag' }, svg), tx = last.x + last.w + 4, ty = last.y - 14;
+  svgEl('path', { d: `M${tx} ${ty + 22} L${tx + 13} ${ty} L${tx + 26} ${ty + 22} Z` }, g);
+  svgEl('text', { x: tx + 13, y: ty + 18 }, g).textContent = 'G';
+  wrap.appendChild(svg); drawn = true;
+}
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(cloud);
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(cloud, 150); });
+
+/* ---------- live status: round trip from the visitor's browser ---------- */
+const pings = {};
+$$('[data-ping]').forEach(async el => {
+  const url = el.dataset.ping;
+  pings[url] ??= (async () => { const t0 = performance.now(); try { await fetch(url, { mode: 'no-cors', cache: 'no-store' }); return Math.round(performance.now() - t0); } catch { return null; } })();
+  const ms = await pings[url];
+  if (ms === null) { el.title = 'Verified live on 24 Oct 2026'; return; }
+  $('.ms', el).textContent = ' · ' + ms + ' ms';
+  el.title = 'Round trip measured from your browser just now';
+});
+
+/* ---------- clock, time overlap ---------- */
+const lagosFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Lagos', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+const localFmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZoneName: 'short' });
+const tickClock = () => { const d = new Date(); $('#lagos').textContent = lagosFmt.format(d); $('#yourtime').textContent = localFmt.format(d); };
+tickClock(); setInterval(tickClock, 1000);
+(() => {
+  const diff = Math.abs(-new Date().getTimezoneOffset() - 60) / 60, overlap = Math.max(0, 8 - diff);
+  $('#overlap').innerHTML = diff === 0 ? 'Lagos is UTC+1. <b>You’re on my time zone</b>, so our working days match.'
+    : overlap > 0 ? `Lagos is UTC+1. <b>Your 9-to-5 overlaps mine by ${overlap % 1 ? overlap.toFixed(1) : overlap} hours.</b>`
+    : 'Lagos is UTC+1. <b>Our 9-to-5s don’t overlap</b>, so we’d work async with written updates.';
+})();
+
+/* ---------- copy, theme, keys ---------- */
+$$('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+  const v = b.dataset.copy, old = b.innerHTML;
+  try { await navigator.clipboard.writeText(v); b.textContent = 'Copied ✓'; }
+  catch { const a = $('.addr') || b; const r = document.createRange(); r.selectNodeContents(a); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected, press Ctrl+C'; }
+  setTimeout(() => b.innerHTML = old, 1800);
+}));
+const root = document.documentElement, themeBtn = $('#theme');
+const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+const label = () => { themeBtn.textContent = isDark() ? 'Paper' : 'Blueprint'; themeBtn.setAttribute('aria-label', isDark() ? 'Switch to the paper (light) theme' : 'Switch to the blueprint (dark) theme'); };
+try { const t = localStorage.getItem('oml-theme'); if (t) root.dataset.theme = t; } catch {}
+label();
+const toggle = () => { root.dataset.theme = isDark() ? 'light' : 'dark'; try { localStorage.setItem('oml-theme', root.dataset.theme); } catch {} label(); };
+themeBtn.addEventListener('click', toggle);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', label);
+const order = ['cover', 'notebook', 'shelflink', 'academy', 'xora', 'horc', 'certify', 'groupmemory'];
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(e.target.tagName)) return;
+  if (/^[0-7]$/.test(e.key)) document.getElementById(order[+e.key]).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  else if (e.key === 't' || e.key === 'T') toggle();
+});
+})();
+</script>
+</body>
+</html>
